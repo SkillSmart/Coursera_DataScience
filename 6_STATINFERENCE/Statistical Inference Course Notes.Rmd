@@ -1,6 +1,6 @@
 ---
 title: "Statistical Inference Course Notes"
-author: "Xing Su"
+author: "Frank Fichtenmueller"
 output:
   pdf_document:
     toc: yes
@@ -33,7 +33,7 @@ $\pagebreak$
 ## Probability
 * **Probability** = the study of quantifying the likelihood of particular events occurring
     * given a random experiment, ***probability*** = population quantity that summarizes the randomness
-	    * not in the data at hand, but a conceptual quantity that exist in the population that we want to estimate
+	    * not in the data at hand, but a conceptual quantity that exist in the population that we want to estimate 
 
 ### General Probability Rules
 * discovered by Russian mathematician Kolmogorov, also known as "Probability Calculus"

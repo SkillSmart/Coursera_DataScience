@@ -1,6 +1,6 @@
 ---
 title: "Data Scientist’s Toolbox Course Notes"
-author: "Xing Su"
+author: "Frank Fichtenmueller"
 output:
   pdf_document:
     toc: yes
@@ -44,7 +44,7 @@ $\pagebreak$
 
 * **Workflow**
     1. make edits in workspace
-    2. update index/add files
+    2. update index/add files\
     3. commit to local repo
     4. push to remote repository
 * `git add .` = add all new files to be tracked
