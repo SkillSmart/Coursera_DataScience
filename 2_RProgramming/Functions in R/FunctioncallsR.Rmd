@@ -1,0 +1,60 @@
+---
+title: "Functioncalls in R"
+author: "Frank Fichtenmueller"
+date: "29 October 2016"
+output: html_document
+---
+
+####Syntax of function definitions in R
+```{r}
+a_function <- function(args){
+  # This is the function body
+  
+}
+```
+
+As always function can contain multiple other calls to for example loops
+```{r}
+smaller <- function(n,weight){
+  for(i in 1:n){
+    if(i < weight){
+      print(paste(i,'is smaller than', weight))
+    } else if(i == weight){
+      print(paste(i,'equals', weight))
+    } else {
+      print(paste(i, 'is larger than', weight))
+    }
+  }
+}
+```
+
+Once the function is given its arguments and the arguments are defined in the functions body, it is initated and can be called by supplying the function name with the args necessary. 
+```{r}
+smaller(10, 4)
+```
+Different than for example in Python, we can not directly assign the outcome of a function to another variable. 
+
+```{r}
+weight <- smaller(10,4)
+```
+
+the function is stored as an object in Rs namespace and can be retrieved to get additional information on how to apply it, its logic and the arguments necessary.
+Just call it without a function call assigned.
+```{r}
+smaller
+```
+
+The arguments are given by the args(). Which returns the same value as smaller, if there are no argumentfiles specified for the function call, as is in our small example function.
+```{r}
+args(smaller)
+```
+
+We can investigate into a function further by looking into the specified method calls that can be defined to access different processes in the function body from the function call.
+Here lets investigate the caret packat function predict
+
+```{r}
+
+args(gaus)
+showMethods('predict')
+```
+

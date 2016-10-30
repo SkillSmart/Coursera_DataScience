@@ -10,7 +10,7 @@ Preprocessint becomes especially necessary and impactfull when using model based
  like regression.
 
 Setting up the test dataset for this exercise
-```{r}
+```{r, echo=FALSE}
 library(caret); library(kernlab); data(spam)
 inTrain <-createDataPartition(y=spam$type, p=0.75, list=FALSE)
 trn_mail <- spam[inTrain, ]

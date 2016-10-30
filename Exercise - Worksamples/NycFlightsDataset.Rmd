@@ -1,0 +1,24 @@
+---
+title: "Example - The NYC Flights Dataset"
+author: "Frank Fichtenmueller"
+date: "30 October 2016"
+output: html_document
+---
+Here i am going trough a sample analysis of the content of the NycFlights13 Dataset
+```{r}
+#Loading the library and the dataset in dplyr df_table format
+# if(require("nycflight13") == FALSE) {install.packages("nycflights13")}
+if(require("dplyr") == FALSE) {print('required packages not installed, will install now');install.packages("dplyr")} else {print('package installed and loaded')}
+flights <- tbl_df(flights)
+```
+First we look get an overview of the dataset
+* Looking at the dimension of the table
+* The variables included (name, type, factor levels if categorial)
+* The timerange of the dataset
+* The summary statistics for each variable
+* The amount of missing data
+* 
+```{r}
+
+```
+
