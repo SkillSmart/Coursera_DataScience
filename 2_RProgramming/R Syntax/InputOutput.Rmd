@@ -36,6 +36,76 @@ Analogous, there are specific functions for *writing to files*:
 * `save` for saving an arbitrary numbe rof R objects in binary fomart (possibly compressed) to a file
 * `serialize` for converting a R object into a binary foramt for outputting to a connection (or file)
 
+#### Using textual and Binary Formats to Storing Data
+
+There are a variety of ways to store data, including structured text files like CSV or tab-delimited. 
+Additionally there is a R native, intermediate text format using the `dput()` or `dump()` functions.
+
+The reusulting textual format is editable, and potentially recoverable, and unlike writing out to *csv* or 
+a *table*, they preserve the metadata. Just sacrifycing some readability. 
+
+Textual formats can work much better with version control programs, as only text based changes can be meaningfully
+tracked, and they can be much longer lived, as corruptions can possibly be inspected and fixed.
+
+These formats are not very space effienct though, and only partially readable. 
+A storage file as CSV, and a seperate meta-data file might sometimes be more appropriate.
+
+#### Using `dput()` and `dump()`
+
+We can easily deparse an R object with `dput()` and read it back in with `dget()`
+```{r}
+x <- data.frame(a=1, b=2)
+# To inspect the code, we print to the console
+dput(x)
+
+# If we want to save, we just pass a `file` argument
+dput(x, file="test.R")
+
+# Now we remove x from the namespace...
+rm(x); x
+```
+
+To get back an object from a `dput` created file
+```{r}
+source("test.R")
+```
+
+#### Working with Binary Formats for storage
+
+Used mainly for efficiency purposes, or because the data can not conveniently be stored in a textual manner. 
+With numeric data, it would also cause loss to transform to textual data. 
+
+Keyfunctions used with Binary Formats:
+
+* `save()` [.rda], used to save individual R objects to file
+* `save.image()` [.Rdata], used to save a collection of objects. This saves all objects in the workspace to file.
+* `serialize()`, used to convert individual R objects into binary format to send over network or connection. -> Raw hexadecimal vector
+
+```{r}
+# Create data.frame
+x <- data.frame(a=c(1,2,3,4,5), b=c(6,7,8,9,10))
+# Save it to file
+save(x,file = "test.rd")
+# Remove
+rm(x);x
+# Reload from file
+load("test.rd");x
+```
+
+Example implementation of the `save.image()` procedure:
+```{r}
+# Save the current state of the Global Environment
+saved_ls <- ls()
+length(saved_ls)
+
+rm(list = ls(all=))
+```
+
+
+
+
+
+
 ###IO Packages in R (Deepdive)
 
 ## Input Functions (~ Data Import)
@@ -163,6 +233,11 @@ Has been recently developed by Hadley Wickham to deal with reading in large flat
 -   `read_table()`: tabular files where colums are separated by white-space.
 -   `read_log()`: web log files
 
+#### Global attributes
+
+- `option(readr.num_columns)`, set number of columns to be printed when reading in a file
+
+
 #### File Formats 
 The package is applicable to reading the following filetypes:
 
@@ -187,7 +262,6 @@ A typical call will take no arguments:
 ```{r, eval=FALSE}
 library(readr)
 teams <- read_csv('data/team_standings.csv')
-
 ```
 
 The default behaviour includes:
@@ -202,9 +276,108 @@ The default behaviour includes:
 Using the `col_types=` argument in the `read_csv()` call, we can manually specify the *col_types*
 
 * The argument accepts a compact representation: `col_types= "cc"` will set column 1 & 2 -> 'character', 'character'
-    * `c` for 'character'
-    * `n` for 'numeric'
+    * `col_logical()` [l] for class 'logical'
+    * `col_integer()` [i] for class 'integer'
+    * `col_double()` [d] for class 'doubles'
+    * `col_character()` [c] for class 'character'
+    * `col_date(format = "")` [D], with the locales `date_format`
+    * `col_time(format = "")` [t], with the locales `time_format`
+    * `col_datetime(format = "")` [T], ISO8601 date times
+    * `col_number` [n], numbers cointaining the `grouping mark`
     
+**To manually specify other column types:**
+
+* `col_skip()`[_,-], don't import this column
+* `col_date(format = "")`, dates with given format
+* `col_datetime(format, tz)`, date times with given formate. If timezone is UTC, this is 20x faster than `strptime()`
+* `col_time(format = "")`, times. Returned as number of seconds past midnight
+* `col_factor(levels, ordered)`, parse a fixed set of known values into a factor
+
+
+Manually specifying the column classes in the read in call:
+```{r, eval=FALSE}
+# 1st way : Use the shorthand notation
+read_csv("iris.csv", col_types = "dc__d")
+
+# Versus the explicit notation that is way..... longer !
+read.csv("iris.csv", col_types = cols(
+  Sepal.Width = col_double(),
+  Sepal.Length = col_double(),
+  Petal.Width = col_double(),
+  Petal.Length = col_double(),
+  Species = col_factor(c("setosa", "versicolor", "virginica"))
+))
+```
+
+
+To **just define certain columns** and leave all other to automatic analysis
+
+```{r, eval=FALSE}
+read_csv("iris.csv", col_types = cols(
+  Species = col_factor(c("setosa", "versicolor", "virginica")))
+)
+```
+
+
+Or **set a default type** for unspecified columns:
+
+```{r, eval=FALSE}
+read_csv("iris.csv", col_types = cols(
+  Species = col_factor(c("setosa", "versicolor", "virginica")),
+  .default = col_double())
+  )
+```
+
+reading **only specific columns** use `cols_only()`
+
+```{r}
+read_csv("iris.csv", col_types = cols_only(
+  Species = cols_factor(c("setosa", "versicolor", "virginica"))
+))
+```
+
+```{r}
+data <- read_csv(readr_example("mtcars.csv"))
+data
+
+# Every table has a spec attribute
+s <- spec(data)
+s
+```
+
+Manually working trough the import of a dataset
+```{r}
+# 1. Read in a sample of 1000 lines from the dataSet. (can be altered by changing `guess_max =`)
+s <- spec_csv(readr_example("mtcars.csv"))
+
+# 2. Automatically set the default to the most common type
+cols_condense(s)
+
+# 3.a If the spec has a default of skip then uses cols_only()
+s$default <- col_skip()
+s
+
+# 3.b Otherwise set the default to the proper type
+s$default <- col_character()
+s
+```
+
+Additional functions introduced with the package:
+```{r}
+print(s, n=10) # Takes an argument 'n' to specify the amount of columns to display
+
+```
+
+#### Column (class type specific) parsing functions
+
+Each of the `col_xyz()` functions has a corresponding `parse_xyz()` function. 
+
+* `parse_logical()`
+* `parse_integer()`
+* `parse_double()`
+* `parse_character()`
+* `parse_number()`
+* 
 
 
 ### Using the `readxl` package
@@ -236,6 +409,9 @@ read_excel(datasets)
 # Then open a specific sheet by position or name
 read_excel(dataset, 2)
 read_excel(dataset, "mtcars")
+
+# If NA is present in the data, give the NA Format 
+read_excel(dataset, 2, na = "NA")
 ```
 
 

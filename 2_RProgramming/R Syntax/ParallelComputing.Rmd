@@ -1,0 +1,26 @@
+---
+title: "R_Programming-ParallelComputing"
+author: "Frank Fichtenmueller"
+date: "31 October 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This section adresses current applications to parrallelize workloads in R on both local multi-core & multi-gpu workstations, 
+as well as how to implement distributed storage architectures like hadoop, hive, etc... from an R perspective. 
+
+#### The parallel package in R
+[see the vignette for more details](file:///C:/Program%20Files/R/R-3.2.4/library/parallel/doc/parallel.pdf)
+
+Lots of work has been done to enable parallel implementations of hight troughput functions in R. 
+
+* `lapply()`
+* `sapply()`
+* `apply()`
+
+

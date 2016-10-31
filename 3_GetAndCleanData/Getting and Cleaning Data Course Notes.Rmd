@@ -1,6 +1,6 @@
 ---
 title: "Getting and Cleaning Data Course Notes"
-author: "Xing Su"
+author: "Frank Fichtenmueller"
 output:
   pdf_document:
     toc: yes

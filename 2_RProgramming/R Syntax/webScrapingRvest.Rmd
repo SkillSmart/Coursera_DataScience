@@ -1,0 +1,46 @@
+---
+title: "GettAndClean_ScrapingWithRvest"
+author: "Frank Fichtenmueller"
+date: "31 October 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Easy web scraping with the rvest package
+```{r}
+library(rvest)
+html <- read_html("http://www.imdb.com/title/tt1490017/")
+title <- html_text(html_nodes(html, ""))
+cast <- html_text(html_nodes(html, "#titleCast span.itemprop"))
+directors <- html_text(html_nodes(html, ".credit_summary_item:nth-child(2) .itemprop"))
+writers <- html_text(html_nodes(html, ".credit_summary_item:nth-child(3) .itemprop"))
+
+meta_score <- as.integer(html_text(html_nodes(html, ".score_favorable span")))
+# Using the `html_text() call to parse out the html code we get the cast list
+cast
+directors
+writers
+meta_score
+```
+
+
+Now let's try to apply the same set on another page on the same site
+```{r}
+html <- read_html("http://www.imdb.com/title/tt1490020/")
+cast <- html_text(html_nodes(html, "#titleCast span.itemprop"))
+directors <- html_text(html_nodes(html, ".credit_summary_item:nth-child(2) .itemprop"))
+writers <- html_text(html_nodes(html, ".credit_summary_item:nth-child(3) .itemprop"))
+
+meta_score <- as.integer(html_text(html_nodes(html, ".score_favorable span")))
+# Using the `html_text() call to parse out the html code we get the cast list
+cast
+directors
+writers
+meta_score
+```
+```
+
+

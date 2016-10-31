@@ -1,0 +1,24 @@
+---
+title: "ggplot2_qplotFunctions"
+author: "Frank Fichtenmueller"
+date: "31 October 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## This is about the qplot functionality in ggplot2
+```{r}
+library(ggplot2)
+```
+
+First we create some data
+
+```{r}
+mycar
+```
+
+
+
+

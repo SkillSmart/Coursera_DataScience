@@ -31,7 +31,7 @@ summary(flights)
 ```
 The Dataset is quite large, so we will need to subset it to help speed up our calculations later on and get a better understanding of what is actually going on. 
 
-#### filter() for selecting a subset of rows
+#### filter() / slice() for selecting a subset of rows
 
 The filter() is used to subset the rows in a dataframe based on a combination of evaluation characteristics. 
 
@@ -101,13 +101,12 @@ head(select(flights, one_of(vars)),2)
 Working wit live datasets, you have to regulary rename the attribute columns to make it easier or more appropriate to adress them in the following analysis. This is easily achieved using two different ways in dplyr.
 
 ```{r}
-# Renaming variables during the subset, with only a subset beeing selected
-select(flights, petal.length = Petal.Length)
-select(flights, p.length = Petal.Length, s.length = Sepal.Length, s.width = Sepal.Width)
+# Renaming variables during the selection, with only a subset beeing selected
+head(select(flights, year, month, arrival = arr_time),2)
 ```
 If you want to keep the structure, but just rename a subset of the columns, you can use the rename() function
 ```{r}
-head(rename(flights, s.length = Sepal.Length),2)
+head(rename(flights, scheduled = sched_arr),2)
 # This function call keeps all other variables automatically
 
 # You can easily use a prefix to rename multiple columns in a single call
@@ -127,4 +126,6 @@ head(select(flights, petal = starts_with("Petal"),everything()),2)
 
 ###filter() and slice() - for subsetting entries(rows) 
 
+rename()
 
+}

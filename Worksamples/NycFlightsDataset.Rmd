@@ -1,0 +1,95 @@
+---
+title: "Example - The NYC Flights Dataset"
+author: "Frank Fichtenmueller"
+date: "30 October 2016"
+output: html_document
+---
+Here i am going trough a sample analysis of the content of the NycFlights13 Dataset
+```{r, include=FALSE}
+#Loading the library and the dataset in dplyr df_table format
+#if(!require("nycflight13") == TRUE) {install.packages("nycflights13"); library(nycflights13)}
+library(nycflights13); library(ggplot2); library(tidyr)
+if(!require("dplyr") == TRUE) {print('required packages not installed, will install now');install.packages("dplyr")} else {print('package installed and loaded')}
+flights <- tbl_df(flights)
+```
+First we look get an overview of the dataset
+ * Looking at the dimension of the table
+ * The variables included (name, type, factor levels if categorial)
+ * The timerange of the dataset
+ * The summary statistics for each variable
+ * The amount of missing data
+ * 
+
+### Inspecting the Question of Flight Delay
+After subsetting the dataset on dep_delay values of below 240 to cut outliers,
+```{r, include=FALSE}
+######Filtering out large delays(outliers)
+flights <- flights %>% filter(dep_delay < 240)
+
+```
+We can take a look at a quick summary of flight delay related measures.  
+(Departure Delay and Arrival Delay)
+```{r densityFunction, fig.width=8, fig.height=6, error=FALSE}
+###Summarise each
+flights %>%
+  select(dep_delay, arr_delay) %>%
+  summarise_each(funs(mean))
+
+### To remove NAs from the calculation we can add the na.rm attribute. Here we pass the . to transport all current variables into the function
+flights %>%
+  select(dep_delay, arr_delay) %>%
+  summarise_each(funs(mean(.,na.rm=TRUE,)), matches('delay'))
+
+
+# Scaleing the data with tidyr
+flights %>% ggplot(aes(x=dep_delay)) + geom_density()
+flights %>% ggplot(aes(x=arr_delay)) + geom_density()
+```  
+
+Now, we can start looking at the density attributes of the variables to get a first understanding about possible correlations in the dataset.  
+
+```{r, hightlight=TRUE}
+
+# In order to plot multiple variables onto the same plot it is good practice to first gather() them into factor levels of one individual variable. 
+# This can then be color coded onto the graph
+
+flights %>% gather(delay, value, dep_delay, arr_delay) %>%
+  ggplot(aes(x=value, fill=delay)) + geom_density(alpha=.3)
+
+
+# This can also be applied with tidyr to represent the data in nice interpretational tables. 
+flights %>%
+  gather(measure, value, dep_delay, arr_delay, air_time, distance) %>%
+  select(value, measure) %>%
+  filter(!is.na(value)) %>%
+  group_by(measure) %>%
+  summarise_each(funs(mean, median, min, max, sd))
+
+# Using this function to create a function to iterate over a list of variable names in the datapool. 
+for (var in c("dep_delay", "arr_delay")) {
+  flights %>%
+    ggplot(aes_string(x=var)) +
+    geom_histogram()
+}
+
+```
+
+### Destinations from NYC
+Next lets look at the destinations from NYC. 
+In order to make proper sense of this data, we need to add the geolocation data for all the airports in the dataset. 
+This information can be found from the [openflights project](www.github.com/jpatokal/openflights). We will download and import the data, select
+the information we need and attach it into a combined dataset to work with. 
+
+Just looking at the given data so far, there is limited information available, about the 
+```{r}
+flights %>%
+  select(carrier, origin, dest, distance) %>%
+  group_by(dest) %>%
+  summarise(num_flights = n(), avg_distance = mean(distance)) %>%
+  arrange(desc(num_flights)) %>%
+  slice(1:40) %>%
+  ggplot(aes(x=dest, y=num_flights)) + geom_()
+  
+```
+
+
