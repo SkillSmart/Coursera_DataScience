@@ -151,3 +151,103 @@ Here we will have a indepth look at all the currently available IO packages for 
 * **These are:**
     * ** The readr package **
     * **
+
+### Using the `readr` package
+
+Has been recently developed by Hadley Wickham to deal with reading in large flat files quickly. The package proovides replacements for following functions:
+
+-   `read_csv()`: comma separated (CSV) files
+-   `read_tsv()`: tab separated files
+-   `read_delim()`: general delimited files
+-   `read_fwf()`: fixed width files
+-   `read_table()`: tabular files where colums are separated by white-space.
+-   `read_log()`: web log files
+
+#### File Formats 
+The package is applicable to reading the following filetypes:
+
+* csv
+* tsv
+* fwf
+
+These functions have been implemented in C/C++ Code, and offer an exponential performance increase. 
+Adittionally they offer *progress meters* to keep track of the state of the data import.
+
+For the most part, these functions can be used analogous to their counterparts, and they offer warning messages when non-fatal excemptions are met. 
+The message comes with annotations to the dataFrame, that is helpfull in debugging the problem. 
+
+Especially the functionality of the `read.csv` function has been dramatically improved by Wickham.
+
+It offers :
+
+* a convenient import metric
+* a compact method to specify column types (parallel to his work on the dplyr package)
+
+A typical call will take no arguments:
+```{r, eval=FALSE}
+library(readr)
+teams <- read_csv('data/team_standings.csv')
+
+```
+
+The default behaviour includes:
+
+* opening the CSV and importing by line
+* Initial read on the first lines of data to decide on column classes
+
+
+
+#### Manually specifying the column classes in readr
+
+Using the `col_types=` argument in the `read_csv()` call, we can manually specify the *col_types*
+
+* The argument accepts a compact representation: `col_types= "cc"` will set column 1 & 2 -> 'character', 'character'
+    * `c` for 'character'
+    * `n` for 'numeric'
+    
+
+
+### Using the `readxl` package
+
+The last addition by Hadley Wickham, brings a new R only version of an Excel import function. 
+
+The package provides the following functions:
+
+* `read_excel()` 
+    * *arguments* 
+        * `path`
+        * `sheet`
+        * `col_names`
+        * `col_types`
+        * `na`
+        * `skip`
+
+This function provides a generic read of flat datafiles into R without relying on external code bases. 
+It is used to read in:
+
+* xls
+* xlsx
+
+Example Code:
+```{r, eval=FALSE}
+dataset <- system.file("extdatea/datasets.xlsx", package = "readxl")
+read_excel(datasets)
+
+# Then open a specific sheet by position or name
+read_excel(dataset, 2)
+read_excel(dataset, "mtcars")
+```
+
+
+
+* `excel_sheets()` 
+    * arguments
+        * path
+        
+This function provides an interator over all included sheets in an excel workbook. It returns a convenient list.
+
+Example Code:
+```{r, eval=FALSE}
+excel_sheets(system.file('extdatea/datasets.xlsx', package = 'readxl'))
+```
+

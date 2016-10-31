@@ -153,6 +153,9 @@ $(document).ready(function () {
 <li><code>serialize</code> for converting a R object into a binary foramt for outputting to a connection (or file)</li>
 </ul>
 </div>
+<div id="io-packages-in-r-deepdive" class="section level3">
+<h3>IO Packages in R (Deepdive)</h3>
+</div>
 </div>
 <div id="input-functions-data-import" class="section level2">
 <h2>Input Functions (~ Data Import)</h2>
@@ -262,6 +265,97 @@ nrows(t) * ncol(t) * 8 / 2^20 # To calculate to MB</code></pre>
 <li>** The readr package <strong> * </strong></li>
 </ul></li>
 </ul>
+<div id="using-the-readr-package" class="section level3">
+<h3>Using the <code>readr</code> package</h3>
+<p>Has been recently developed by Hadley Wickham to deal with reading in large flat files quickly. The package proovides replacements for following functions:</p>
+<ul>
+<li><code>read_csv()</code>: comma separated (CSV) files</li>
+<li><code>read_tsv()</code>: tab separated files</li>
+<li><code>read_delim()</code>: general delimited files</li>
+<li><code>read_fwf()</code>: fixed width files</li>
+<li><code>read_table()</code>: tabular files where colums are separated by white-space.</li>
+<li><code>read_log()</code>: web log files</li>
+</ul>
+<div id="file-formats" class="section level4">
+<h4>File Formats</h4>
+<p>The package is applicable to reading the following filetypes:</p>
+<ul>
+<li>csv</li>
+<li>tsv</li>
+<li>fwf</li>
+</ul>
+<p>These functions have been implemented in C/C++ Code, and offer an exponential performance increase. Adittionally they offer <em>progress meters</em> to keep track of the state of the data import.</p>
+<p>For the most part, these functions can be used analogous to their counterparts, and they offer warning messages when non-fatal excemptions are met. The message comes with annotations to the dataFrame, that is helpfull in debugging the problem.</p>
+<p>Especially the functionality of the <code>read.csv</code> function has been dramatically improved by Wickham.</p>
+<p>It offers :</p>
+<ul>
+<li>a convenient import metric</li>
+<li>a compact method to specify column types (parallel to his work on the dplyr package)</li>
+</ul>
+<p>A typical call will take no arguments:</p>
+<pre class="r"><code>library(readr)
+teams &lt;- read_csv('data/team_standings.csv')</code></pre>
+<p>The default behaviour includes:</p>
+<ul>
+<li>opening the CSV and importing by line</li>
+<li>Initial read on the first lines of data to decide on column classes</li>
+</ul>
+</div>
+<div id="manually-specifying-the-column-classes-in-readr" class="section level4">
+<h4>Manually specifying the column classes in readr</h4>
+<p>Using the <code>col_types=</code> argument in the <code>read_csv()</code> call, we can manually specify the <em>col_types</em></p>
+<ul>
+<li>The argument accepts a compact representation: <code>col_types= &quot;cc&quot;</code> will set column 1 &amp; 2 -&gt; ‘character’, ‘character’
+<ul>
+<li><code>c</code> for ‘character’</li>
+<li><code>n</code> for ‘numeric’</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="using-the-readxl-package" class="section level3">
+<h3>Using the <code>readxl</code> package</h3>
+<p>The last addition by Hadley Wickham, brings a new R only version of an Excel import function.</p>
+<p>The package provides the following functions:</p>
+<ul>
+<li><code>read_excel()</code>
+<ul>
+<li><em>arguments</em>
+<ul>
+<li><code>path</code></li>
+<li><code>sheet</code></li>
+<li><code>col_names</code></li>
+<li><code>col_types</code></li>
+<li><code>na</code></li>
+<li><code>skip</code></li>
+</ul></li>
+</ul></li>
+</ul>
+<p>This function provides a generic read of flat datafiles into R without relying on external code bases. It is used to read in:</p>
+<ul>
+<li>xls</li>
+<li>xlsx</li>
+</ul>
+<p>Example Code:</p>
+<pre class="r"><code>dataset &lt;- system.file(&quot;extdatea/datasets.xlsx&quot;, package = &quot;readxl&quot;)
+read_excel(datasets)
+
+# Then open a specific sheet by position or name
+read_excel(dataset, 2)
+read_excel(dataset, &quot;mtcars&quot;)</code></pre>
+<ul>
+<li><code>excel_sheets()</code>
+<ul>
+<li>arguments
+<ul>
+<li>path</li>
+</ul></li>
+</ul></li>
+</ul>
+<p>This function provides an interator over all included sheets in an excel workbook. It returns a convenient list.</p>
+<p>Example Code:</p>
+<pre class="r"><code>excel_sheets(system.file('extdatea/datasets.xlsx', package = 'readxl'))</code></pre>
+</div>
 </div>
 </div>
 
