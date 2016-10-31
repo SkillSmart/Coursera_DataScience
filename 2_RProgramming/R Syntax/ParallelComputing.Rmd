@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## R Parallel Computing on local and remote multicore systems
 
 This section adresses current applications to parrallelize workloads in R on both local multi-core & multi-gpu workstations, 
 as well as how to implement distributed storage architectures like hadoop, hive, etc... from an R perspective. 
@@ -19,7 +19,7 @@ as well as how to implement distributed storage architectures like hadoop, hive,
 
 Lots of work has been done to enable parallel implementations of hight troughput functions in R. 
 
-* `lapply()`
+* `lapply()`, now available  are `parLapply(cl, x, FUN, ...)` & `mclapply(X, FUN, ..., mc.cores)`(not available on Windows)
 * `sapply()`
 * `apply()`
 

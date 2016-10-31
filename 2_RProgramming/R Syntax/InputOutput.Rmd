@@ -36,73 +36,11 @@ Analogous, there are specific functions for *writing to files*:
 * `save` for saving an arbitrary numbe rof R objects in binary fomart (possibly compressed) to a file
 * `serialize` for converting a R object into a binary foramt for outputting to a connection (or file)
 
-#### Using textual and Binary Formats to Storing Data
+###Dataconnections, Interfaces, API's
 
-There are a variety of ways to store data, including structured text files like CSV or tab-delimited. 
-Additionally there is a R native, intermediate text format using the `dput()` or `dump()` functions.
-
-The reusulting textual format is editable, and potentially recoverable, and unlike writing out to *csv* or 
-a *table*, they preserve the metadata. Just sacrifycing some readability. 
-
-Textual formats can work much better with version control programs, as only text based changes can be meaningfully
-tracked, and they can be much longer lived, as corruptions can possibly be inspected and fixed.
-
-These formats are not very space effienct though, and only partially readable. 
-A storage file as CSV, and a seperate meta-data file might sometimes be more appropriate.
-
-#### Using `dput()` and `dump()`
-
-We can easily deparse an R object with `dput()` and read it back in with `dget()`
-```{r}
-x <- data.frame(a=1, b=2)
-# To inspect the code, we print to the console
-dput(x)
-
-# If we want to save, we just pass a `file` argument
-dput(x, file="test.R")
-
-# Now we remove x from the namespace...
-rm(x); x
-```
-
-To get back an object from a `dput` created file
-```{r}
-source("test.R")
-```
-
-#### Working with Binary Formats for storage
-
-Used mainly for efficiency purposes, or because the data can not conveniently be stored in a textual manner. 
-With numeric data, it would also cause loss to transform to textual data. 
-
-Keyfunctions used with Binary Formats:
-
-* `save()` [.rda], used to save individual R objects to file
-* `save.image()` [.Rdata], used to save a collection of objects. This saves all objects in the workspace to file.
-* `serialize()`, used to convert individual R objects into binary format to send over network or connection. -> Raw hexadecimal vector
-
-```{r}
-# Create data.frame
-x <- data.frame(a=c(1,2,3,4,5), b=c(6,7,8,9,10))
-# Save it to file
-save(x,file = "test.rd")
-# Remove
-rm(x);x
-# Reload from file
-load("test.rd");x
-```
-
-Example implementation of the `save.image()` procedure:
-```{r}
-# Save the current state of the Global Environment
-saved_ls <- ls()
-length(saved_ls)
-
-rm(list = ls(all=))
-```
-
-
-
+* `file()`, `gzfile()`, `bzfile()`, `url()`, connections to text files
+* connections to dataBases
+* connections to webServices
 
 
 
@@ -200,15 +138,79 @@ Take into account the current minimum requirements of all other:
 
 
 
+
+
+
 ## Output functions
 
 ### `write.table` for writing tabular data to text files (i.e. CSV)
 
 ### `writeLines` for writing character data line-by-line to a file or connection
 
-### `dump` for dumping a ntextual reapresentation fo multiple R objects
+#### Using textual and Binary Formats to Storing Data
 
-### `dput` for outputting a textual representation of an R object
+There are a variety of ways to store data, including structured text files like CSV or tab-delimited. 
+Additionally there is a R native, intermediate text format using the `dput()` or `dump()` functions.
+
+The reusulting textual format is editable, and potentially recoverable, and unlike writing out to *csv* or 
+a *table*, they preserve the metadata. Just sacrifycing some readability. 
+
+Textual formats can work much better with version control programs, as only text based changes can be meaningfully
+tracked, and they can be much longer lived, as corruptions can possibly be inspected and fixed.
+
+These formats are not very space effienct though, and only partially readable. 
+A storage file as CSV, and a seperate meta-data file might sometimes be more appropriate.
+
+#### Using `dput()` and `dump()`
+
+We can easily deparse an R object with `dput()` and read it back in with `dget()`
+```{r}
+x <- data.frame(a=1, b=2)
+# To inspect the code, we print to the console
+dput(x)
+
+# If we want to save, we just pass a `file` argument
+dput(x, file="test.R")
+
+# Now we remove x from the namespace...
+rm(x); x
+```
+
+To get back an object from a `dput` created file
+```{r}
+source("test.R")
+```
+
+#### Working with Binary Formats for storage
+
+Used mainly for efficiency purposes, or because the data can not conveniently be stored in a textual manner. 
+With numeric data, it would also cause loss to transform to textual data. 
+
+Keyfunctions used with Binary Formats:
+
+* `save()` [.rda], used to save individual R objects to file
+* `save.image()` [.Rdata], used to save a collection of objects. This saves all objects in the workspace to file.
+* `serialize()`, used to convert individual R objects into binary format to send over network or connection. -> Raw hexadecimal vector
+
+```{r}
+# Create data.frame
+x <- data.frame(a=c(1,2,3,4,5), b=c(6,7,8,9,10))
+# Save it to file
+save(x,file = "test.rd")
+# Remove
+rm(x);x
+# Reload from file
+load("test.rd");x
+```
+
+Example implementation of the `save.image()` procedure:
+```{r}
+# Save the current state of the Global Environment
+saved_ls <- ls()
+length(saved_ls)
+
+rm(list = ls(all=))
+```
 
 ### `save` for saving an arbitrary numbe rof R objects in binary fomart (possibly compressed) to a file
 
@@ -257,6 +259,33 @@ It offers :
 
 * a convenient import metric
 * a compact method to specify column types (parallel to his work on the dplyr package)
+
+Specifying the file location to read from
+```{r}
+# When handling online flat files we can just paste them as regular file locations to the readr function
+ext_tracks_file <- paste0("http://rammb.cira.colostate.edu/research/",          # Here we use `paste0()` to recombine the pieces for easier fitting of long text
+                          "tropical_cyclones/tc_extended_best_track_dataset/", 
+                          "data/ebtrk_atlc_1988_2015.txt")
+
+# Since we deal with a fwf (fixed width) we have to define the width of each column.
+ext_tracks_widths <- c(7, 10, 2, 2, 3, 5, 5, 6, 4, 5, 4, 4, 5, 3, 4, 3, 3, 3, 4, 3, 3, 3, 4, 3, 3, 3, 2, 6, 1)
+
+# As the file does not contain column labels, we have to look them up manually in the online documentation for the dataset
+ext_tracks_colnames <- c("storm_id", "storm_name", "month", "day", 
+                         "hour", "year", "latitude", "longitude", "max_wind", "min_pressure", "rad_max_wind", 
+                         "eye_diameter","pressure_1", "pressure_2", 
+                         paste("radius_34", c("ne", "se", "sw", "nw"), sep = "_"), 
+                         paste("radius_50", c("ne", "se", "sw", "nw"), sep = "_"), 
+                         paste("radius_64", c("ne", "se", "sw", "nw"), sep = "_"), 
+                         "storm_type", "distance_to_land", "final")
+
+# Read the file in from its url (specifying file location, width vector, columnNames vector, and the NA symbol)
+ext_tracks <- read_fwf(ext_tracks_file, 
+                       fwf_widths(ext_tracks_widths, ext_tracks_colnames), 
+                       na = "-99")
+```
+
+
 
 A typical call will take no arguments:
 ```{r, eval=FALSE}
