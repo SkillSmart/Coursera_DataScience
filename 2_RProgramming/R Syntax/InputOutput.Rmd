@@ -1,0 +1,153 @@
+---
+title: "R_Programming_ReadingWritingData"
+author: "Frank Fichtenmueller"
+date: "31 October 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# R Data IO
+
+## Table of Contents
+###Input functions
+Principal Funcition to read data into R
+
+* `read.table`, `read.csv` for reading tabular data
+* `readLines` for reading lines of a text file
+* `source` for reading in R code files (inverse of dump)
+* `dget` for reading in R code files (inverse of dput)
+* `load` for reading in saved workspaces
+* `unserialize` for reading in single R objects in binary form
+
+There are of course many R packages that have been developed to read in datasets, and you might want 
+to resort to them when needed. 
+
+
+###Output functions
+Analogous, there are specific functions for *writing to files*:
+
+* `write.table` for writing tabular data to text files (i.e. CSV)
+* `writeLines` for writing character data line-by-line to a file or connection
+* `dump` for dumping a ntextual reapresentation fo multiple R objects
+* `dput` for outputting a textual representation of an R object
+* `save` for saving an arbitrary numbe rof R objects in binary fomart (possibly compressed) to a file
+* `serialize` for converting a R object into a binary foramt for outputting to a connection (or file)
+
+###IO Packages in R (Deepdive)
+
+## Input Functions (~ Data Import)
+### Reading Data files with `read.table()`
+
+The `read.table()` command is the most commonly used functions for reading in data in R. 
+The helpfile is worth reading in its entirety, especially because the function gets used a lot.
+
+**TODO: Add the information from the help file in this document **
+
+The `read.table()` function has a couple of important attributes:
+
+* *file* the name of a file, or a connection handler object
+* *header*, lobical indicating if the file has a header line
+* *sep*, a string indicating how the columns are seperated
+* *colClasses*, a character vector indicating the class of each column in the dataset
+* *nrows*, the number of rows in the dataset. By default read.table() reads an entire file. 
+* *comment.char*, a character string indicating the comment character. Defaults to '#'
+* *skip*, the number of lines to skip before starting to read out content
+* *stringsAsFactors*, should character variables be coded as factors? Defaults to `TRUE` because back in the old dayas, if you had data that were stored as strings,
+it was because they represented levels of a factor. When working with text variables, set this to FALSE and assign factor levels to the suitable variables manually.
+
+
+When working with small to medium sized datasets, you do not have to worry about setting any other parameters to the `read.table()` function call. 
+
+```{r, eval=FALSE}
+data <- read.table('/data/foo.txt')
+```
+
+
+#### Reading larger Datasets with `read.table()`
+
+With much larger datasets, there are a few things that you can do that will make your life easier and prevent memory runouts.
+
+* Read the help page for `read.table()`,  #### TODO: ADD THIS INFORMATION HERE!!!!
+* Make a rough calculation of the memory requirements. If this exceeds the memory on your machine, stop right here.
+* Set comment.char = "" if there are no commented lines in your files
+* us the `colClasses = "numeric"` argument, this can make read.table() run much faster. For this to work you have to know the classes
+of each variable. 
+
+Here is a quick and easy way to get a picture of all variable classes:
+
+```{r, eval=FALSE}
+# First load just the head of the table. e.g. the first 100 lines
+initial <- read.table('datatable.txt', nrows=100)
+
+# Then apply the class function to all columns and store the result in a vector
+classes <- sapply(initial, class)
+
+# Load the complete dataset and "manually" define the class for each column, useing the vector
+tabAll <- read.table('datatable.txt', colClasses = classes)
+```
+
+In general you want to look out for options to reduce the load on the current RAM while performing the data read.
+
+* How much memory is available on your system? 
+* What other applications are in use? Can you close any of them? 
+* Are there other users logged into the same system? 
+* What operating system are you using? Some operatingsystems can limit the amount of memory a single process can access
+
+#### How to calculate the Memory Requirements for an R Object
+
+Remember, R stores all data in physical memory, which severely limits the amount of data you can read in. Before reading in a new dataset, 
+you should first calculate the Memory requirements, as R will not take notice until it has run out and all progress on the task will be lost. 
+
+This short and easy calculation should give you a working approximation:
+
+* Double precission floating numbers are stored in 64bit format, or 8 bytes. 
+
+Given that information, we can calculate the requirements with the following formula:
+
+```{r, eval=FALSE}
+# Given a data.table(t) we calculate the amount of necessary MB with
+nrows(t) * ncol(t) * 8 / 2^20 # To calculate to MB
+```
+
+Take into account the current minimum requirements of all other:
+
+* running programs
+* the general amount of unassigned RAM on your system (After the initial Memory needs of your operating system)
+
+
+### `readLines()` for reading lines of a text file
+
+### `source()` for reading in R code files (inverse of dump)
+
+### `dget()` for reading in R code files (inverse of dput)
+
+### `load()` for reading in saved workspaces
+
+### `unserialize()` for reading in single R objects in binary form
+
+
+
+## Output functions
+
+### `write.table` for writing tabular data to text files (i.e. CSV)
+
+### `writeLines` for writing character data line-by-line to a file or connection
+
+### `dump` for dumping a ntextual reapresentation fo multiple R objects
+
+### `dput` for outputting a textual representation of an R object
+
+### `save` for saving an arbitrary numbe rof R objects in binary fomart (possibly compressed) to a file
+
+### `serialize` for converting a R object into a binary foramt for outputting to a connection (or file)
+
+## special IO packages in R
+
+Here we will have a indepth look at all the currently available IO packages for R
+
+* **These are:**
+    * ** The readr package **
+    * **
