@@ -1,0 +1,198 @@
+---
+title: "R_programming_DataStructures"
+author: "Frank Fichtenmueller"
+date: "31 October 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+$\pagebreak$
+
+## R Working with basic data structures in R
+
+In R there are basic data types:
+
+* **Datatypes**
+    * character
+    * numeric (real number)
+    * integer
+    * complex
+    * logical / boolean (TRUE/FALSE)  
+
+
+```{r}
+x <- c(1,3,4,5,6)
+class(x)
+
+
+# Numeric
+x
+
+# The logical 
+as.logical(x)
+class(as.logical(x))
+
+# The charcter
+as.character(x)
+class(as.character(x))
+
+# The complex number
+as.complex(x)
+class(as.complex(x))
+
+# 
+
+```
+
+There are different datastructures to hold combinations of these datatypes.
+
+* **Datatypes**
+    * The vector 
+    * The matrix
+    * The list
+    * The Factor Levels
+
+
+## Lets look at the basic vector first
+
+It can only **hold ony type of data** and will therefore find coerce the data, to find a common minimum representation. 
+As this is done automatically, it can lead to problems if not taken into account.
+
+```{r}
+
+# It can hold only a specific type of data, so conversion happens under the hood
+l <- c('a', 1, 4+0i, TRUE)
+l
+
+# Its class is set to be able to accompany all given inputs
+class(l)
+class(l[4])
+
+# It can be indexed, therefore it remembers position 
+l[1]
+l[1:3]
+
+
+#The following mixes can occur
+y <- c(1.7, 'a') #Character
+y <- c(TRUE, 2)  #numeric
+y <- c(1, 5+0i)  #complex 
+
+```
+
+### Attributes
+
+Datatypes carry **5 basic kind** of attributes that sets them appart and influences their specific behaviour. 
+
+* names, dimnames
+* dimensions (matrices, arrays)
+* class (e.g. integer, numeric, etc..)
+* length
+* other user-defined attributes/metadata
+
+These can be accessed using the `attributes()` function call. If the R object does not contain attributes the function call will 
+return `NULL`.
+
+Even though an object might not return `attributes`, we can still use the following functions to adress attributes directly.
+
+* `dim()` will return the dimensions of the object (Null for Vector)
+* `length()` returns the number of entries in the object
+
+
+```{r}
+x
+attributes(x)
+length(x)
+dim(x)
+
+```
+
+
+### Matrices
+
+Matrices are vectors with a dimension attribute. The dimension is itself an integer vector of length 2(number of rows, number of columns)
+
+```{r}
+m <- matrix(nrow=2, ncol=3)
+dim(m)
+attributes(m)
+```
+
+They are constructed column wise by combing single column vectors along the n-row dimension. Given a `vector of length n` they will split it
+according to the `nrow` attribute.
+
+```{r}
+matrix(1:6, nrow=3, ncol=2)
+
+#The function call will infer the missing dimension automatically
+matrix(1:10, nrow=5)
+
+# Or you recombine them by adding a dimension to a vector
+v <- c(1:10)
+dim(v) <- c(2,5)
+v
+```
+
+They can be combined out of single vectors trough **column-wise or row-wise** binding.
+* `cbind` to combine the vectors column-wise
+* `rbind` to combine row-wise
+
+```{r}
+x <- 1:3
+y <- 10:12
+# Column wise
+cbind(x,y)
+# Row wise
+rbind(x,y)
+```
+
+
+### Lists
+
+They are a special type of vector that can cointain elements of different classes. They are a very important data type. 
+Especially in combination with the various `apply()` functions, they are a powerful combination.
+
+They can be directly created using the `list()` function, which takes an arbitrary number of arguments to concatinate.
+
+```{r}
+l <- list(1,2,3, 'a', 'b', 'c', TRUE, FALSE, TRUE)
+l
+```
+
+If we want to create a `list` with a preset length to be filled e.g. by a function call we can specify this with 
+the `vector('list', length=??)` command call.
+
+### Factors & Factor Levels
+
+To represent categorial variables, we can use the `Factor` type in R. This can be unordered or ordered.
+Once can think of a factor as an integer vector where each integer has a label. 
+
+Using a labeled factor is better, as labels are self describing, instead of using dummy variables (e.g. 0|1)
+
+```{r}
+x <- factor(c('yes', 'no', 'yes', 'yes', 'no', 'no'))
+x
+```
+
+The `factor()` call automatically creates the factor levels by identifying the number of unique elements associated.
+Now we can apply more advanced summary descriptions to the data
+
+```{r}
+table(x)
+# And use the unclass() command to identfy the underlying structure of the data
+unclass(x)
+
+```
+
+Often factors will be automatically created when importing a dataset using e.g. `read.table()` command. 
+As this will create factor levels that are ordered by ascending first letters, we might want to give them a more indicative 
+structure manually. 
+
+This can be done useing the `levels` attribute to the `factor()` call.
+
+
+
+
