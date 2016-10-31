@@ -15,14 +15,16 @@ The dplyr package offers a clean and simple language to work on dataframes. It i
 As an easy to use example we will be working trough all possible functions on the basis of the flights dataset.
 To make the data present in a neater and more concise format, dplyr provides a unique datastructre the tbl_df
 ```{r, echo=FALSE}
-if (require(dplyr) == FALSE) install.packages("dply")
-if (require(nycflights13) == FALSE) install.packages("nycflights13")
+if (!require(dplyr) == TRUE) {install.packages("dplyr");require(dplyr)}
+if (!require(nycflights13) == TRUE){install.packages("nycflights13"); require(nycflights13)}
+library(nycflights13)
+data("flights")
 flights <- tbl_df(flights)
 ```
 Now we can use the View() function to get a clean and orderly presentation of the dataset, that is also easily rescalable. Something
 that is especially convenient when working with large and complicated datasets.
 ```{r}
-View(flights)
+glimpse(flights)
 # And of course use summary(flights) to extract the basic statistical measurements. 
 
 summary(flights)
