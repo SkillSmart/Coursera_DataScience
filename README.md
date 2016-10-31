@@ -1,13 +1,50 @@
-<<<<<<< HEAD
-# Data Science Specialization Course Notes
+## Data Science - Project Ready code base for common DataScience Applications
 
-I have compiled notes for all 9 courses of the Johns Hopkins Unversity/Coursera Data Science Specialization. The notes are all written in **R Markdown** format and cover all concepts convered in class, as well as additional examples I have compiled from lecture, my own exploration, _StackOverflow_, and _Khan Academy_. These documents are intended to be comprehensive sources of reference for future use and they have served me wonderfully in completing the assignments for each course. So I hope you will find them helpful as well. 
+This Repo is the representation of my ongoing work on DataScience Applications. 
 
-They are by no means perfect, so feel free to correct, contribute (send a pull request), or use them in anyway you would like. 
+#### Current Status: This repo has been constructed from old content derived from the Coursera Specialization in DataScience, and is currently redone. 
 
-You will find **HTML**, **PDF**, and **R Markdown** files here in this repository in each of the corresponding folders. You can view the HTML versions [here](http://sux13.github.io/DataScienceSpCourseNotes/)
+###Goal with this project: 
 
-If you have any questions, drop me an email at s.xing@me.com
-=======
-# Coursera_DataScience
->>>>>>> f2e89e01329da92509285e93a909348f3628149e
+It is my focus to integrate the learning from different MOOCS with my ongoing work in DataAnalytics in a way, that allows for fastpaced
+recreation of common codeing scenarios. 
+My aim is to add specific codeing solutions to this repo as a growing code base, and be able to use it to compare, discuss and enhance specific solutions with fellows. 
+As the field is constantly evolving, new packages are developed daily, i want to focuss on beeing able to easily work across different programming languages in an integrated fashion. 
+
+### Current scope of Language  
+I am working with the following languages which i will be updating content for:
+
+* Languages
+  * R
+  * Python 2.7
+  * Octave
+
+* Libraries in R
+  * dplyr
+  * ggplot2
+  * sem
+  * psych
+  * caret
+
+* Libraries in Python
+  * scikit-learn
+  * pandas
+  * numpy
+  * matplotlib
+  * scipy
+
+
+### Current scope of Applications
+Currently i am working on writing up the codebase for basic applications in:
+ * Machine Learning Applications in Supervised Learning (caret package)
+ * Unsupervised Learning, Dimensionality Reduction & Component Analysis (implementations in psych & caret) 
+
+Currently i am updating the application of:
+ * Propabilistic Graphical Models on Expert System Application
+ * Recurrent Neural Network for Timeline Data
+ * Propabilistic Models in NLP Applications
+ 
+ 
+If you have any comments or suggestions to the content of the Repo, or just want to get in touch with me 
+feel free to contact me at [frank.fichtenmueller@outlook.com](mailto:frank.fichtenmueller@outlook.com)
+ 
