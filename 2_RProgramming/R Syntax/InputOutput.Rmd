@@ -374,7 +374,21 @@ s <- spec(data)
 s
 ```
 
-Manually working trough the import of a dataset
+#####Manually specifying only a subset of the datset to be read in
+```{r}
+# Reading in a limited amount of columns (Leaving out the third column)
+read_csv("iris.csv", col_types = "dc-_d")
+
+
+# Reading in only a limited amount of rows
+read_csv("iris.csv", n_max=10)
+
+# Skipping a head of ... number of rows before reading 
+read_csv("iris.csv", skip=10)
+```
+
+
+#####Example - Workflow for the manual import of a dataset
 ```{r}
 # 1. Read in a sample of 1000 lines from the dataSet. (can be altered by changing `guess_max =`)
 s <- spec_csv(readr_example("mtcars.csv"))

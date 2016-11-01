@@ -135,7 +135,9 @@ $(document).ready(function () {
 <li>numeric (real number)</li>
 <li>integer</li>
 <li>complex</li>
-<li>logical / boolean (TRUE/FALSE)</li>
+<li>logical / boolean (TRUE/FALSE)<br />
+</li>
+<li>NA / NaN (Missing Data)</li>
 </ul></li>
 </ul>
 <pre class="r"><code>x &lt;- c(1,3,4,5,6)
@@ -160,9 +162,33 @@ as.complex(x)</code></pre>
 <pre class="r"><code>class(as.complex(x))</code></pre>
 <pre><code>## [1] &quot;complex&quot;</code></pre>
 <pre class="r"><code># </code></pre>
+<div id="the-logicalboolean-datatype" class="section level4">
+<h4>The logical/boolean Datatype</h4>
+<pre class="r"><code>my_bool &lt;- rnorm(50,100,15) &gt; 140 #Generate 50 random IQ values and test for high IQ
+
+# This returns a boolean vector of (TRUE/FALSE)
+my_bool</code></pre>
+<pre><code>##  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [12] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [23] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [34] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [45] FALSE FALSE FALSE FALSE FALSE FALSE</code></pre>
+<pre class="r"><code># Under the hood these values are named (0/1) values with the factor levels (&quot;TRUE&quot;, &quot;FALSE&quot;)
+sum(my_bool) # Will count up all &quot;TRUES&quot;=1, to sum to the total of values above 40</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="r"><code># Therefore 
+sum(my_bool)/ length(my_bool)   # Will be the proportion of randomn IQs above 140 (2*sd above Mean ~&gt; E(0.05))</code></pre>
+<pre><code>## [1] 0</code></pre>
+</div>
+<div id="na-nan-missing-data" class="section level4">
+<h4>NA / NaN (Missing Data)</h4>
+<p>Missing Data is represented by each system as a placeholder value. In R the <code>NA</code> indicates a missing value, and the <code>NaN</code> indicates a mathematical result that does not hold as a valid number.</p>
+<pre class="r"><code># The basic example is a division by 0
+12/0    # Will produce NaN</code></pre>
+<pre><code>## [1] Inf</code></pre>
 <p>There are different datastructures to hold combinations of these datatypes.</p>
 <ul>
-<li><strong>Datatypes</strong>
+<li><strong>Datastructures</strong>
 <ul>
 <li>The vector</li>
 <li>The matrix</li>
@@ -170,6 +196,7 @@ as.complex(x)</code></pre>
 <li>The Factor Levels</li>
 </ul></li>
 </ul>
+</div>
 </div>
 <div id="lets-look-at-the-basic-vector-first" class="section level2">
 <h2>Lets look at the basic vector first</h2>
@@ -192,6 +219,81 @@ l[1]</code></pre>
 y &lt;- c(1.7, 'a') #Character
 y &lt;- c(TRUE, 2)  #numeric
 y &lt;- c(1, 5+0i)  #complex </code></pre>
+<div id="logical-vectors" class="section level4">
+<h4>Logical vectors</h4>
+<pre class="r"><code>num_vect &lt;- c(2, 4, 7.3, 0,9)
+y &lt;- num_vect &gt; 2   #logical 
+y &lt;- num_vect &lt;= 6 
+y &lt;- num_vect &gt; 6 &amp; &lt; 7
+y &lt;- num_vect &lt; 3 | &gt; 8</code></pre>
+</div>
+<div id="character-vectors" class="section level4">
+<h4>Character vectors</h4>
+<pre class="r"><code>char_vect &lt;- c(&quot;This&quot;, &quot;is&quot;, &quot;a&quot;, &quot;vector&quot;, &quot;of&quot;, &quot;character&quot;, &quot;elements&quot;)
+
+# To collapse all individual elements int a one element string we use `paste()`
+paste(char_vect, collapse=&quot; &quot;)</code></pre>
+<pre><code>## [1] &quot;This is a vector of character elements&quot;</code></pre>
+<pre class="r"><code># To combine two vectors, we can add them with `c()`
+sec_vect &lt;- c(&quot;that&quot;, &quot;has&quot;, &quot;been&quot;, &quot;missing&quot;, &quot;the&quot;, &quot;end&quot;,&quot;.&quot;)
+c(char_vect, sec_vect)</code></pre>
+<pre><code>##  [1] &quot;This&quot;      &quot;is&quot;        &quot;a&quot;         &quot;vector&quot;    &quot;of&quot;       
+##  [6] &quot;character&quot; &quot;elements&quot;  &quot;that&quot;      &quot;has&quot;       &quot;been&quot;     
+## [11] &quot;missing&quot;   &quot;the&quot;       &quot;end&quot;       &quot;.&quot;</code></pre>
+<pre class="r"><code># When adding two vectors of different size, the smaller one gets recycled along the lenght of the larger one
+paste(1:3, 10:30, paste=&quot;&quot;)</code></pre>
+<pre><code>##  [1] &quot;1 10 &quot; &quot;2 11 &quot; &quot;3 12 &quot; &quot;1 13 &quot; &quot;2 14 &quot; &quot;3 15 &quot; &quot;1 16 &quot; &quot;2 17 &quot;
+##  [9] &quot;3 18 &quot; &quot;1 19 &quot; &quot;2 20 &quot; &quot;3 21 &quot; &quot;1 22 &quot; &quot;2 23 &quot; &quot;3 24 &quot; &quot;1 25 &quot;
+## [17] &quot;2 26 &quot; &quot;3 27 &quot; &quot;1 28 &quot; &quot;2 29 &quot; &quot;3 30 &quot;</code></pre>
+</div>
+<div id="subsetiing-vectors" class="section level4">
+<h4>Subsetiing vectors</h4>
+<p>Vectors represetnt their elements in an ordered sequence, and can therefore be subsetted easily. Other than some representations, that do not appear in the same order every time we retrieve them, vectors allow us to specify the subsett by index.</p>
+<pre class="r"><code># Generate sample random data with NAs
+vec &lt;- sample(c(rnorm(20), seq(NA,20),20))
+
+# We tell R to subset by placing an index element, or vector in []
+vec[1]            #Returns the first element
+vec[-1]           #Returns the last element
+vec[c(1,3,5,7)]   #Returns a manually set subset
+
+# Return sequences of elements
+vec[1:10]
+
+#Returns every second element of the vector (ascending order)
+vec[seq(1:length(vec),2)]   
+
+#Returns every second element (descending order)
+vec[seq(lenght(vec) : 1), 2]</code></pre>
+<p>Mostly we will want to subset vectors based on logical values of the same length</p>
+<pre class="r"><code>#To return only the non missing values in a vector
+y &lt;- vec[!is.na(vec)]   
+
+#Subset all positive values
+y[y &gt; 0]
+
+#Subset with a distribution value (upper half of the distribution)
+y[y &gt; mean(y)]
+
+#Subset with AND (Here to skip the step of selecting out the NA, if we wish so)
+vec[!is.na(vec) &amp; vec &gt; 0]</code></pre>
+<div id="be-aware" class="section level5">
+<h5>BE AWARE!!!</h5>
+<p>R does not fail when requesting a non existent element in a vector, but instead returns 0 | NA</p>
+<pre class="r"><code># Given a vector of lenght=5
+vec &lt;- 1:5
+
+# R is indexing  1 -&gt; n
+vec[1]    # is the first element in the vector</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code># But asking for index[0] does not result in an error
+vec[0]</code></pre>
+<pre><code>## integer(0)</code></pre>
+<pre class="r"><code># Neither does indexing &gt; length(vec)
+vec[length(vec) + 10]</code></pre>
+<pre><code>## [1] NA</code></pre>
+</div>
+</div>
 <div id="attributes" class="section level3">
 <h3>Attributes</h3>
 <p>Datatypes carry <strong>5 basic kind</strong> of attributes that sets them appart and influences their specific behaviour.</p>
@@ -364,6 +466,9 @@ x_clean</code></pre>
 x[is.na(x)] &lt;- 10
 x</code></pre>
 <pre><code>## [1]  2  3 10 10  3</code></pre>
+<p>As a NA is just a program specific indication of a missing value, it is itself not a value. Therfore, all attempts to adress it as such will fail.</p>
+<pre class="r"><code># It can not be logicaly tested. This will not work instead of `is.na(x)`
+x == NA</code></pre>
 </div>
 <div id="dataframes" class="section level3">
 <h3>DataFrames</h3>

@@ -1,0 +1,50 @@
+---
+title: "R_Progamming-RandomNumbers"
+author: "Frank Fichtenmueller"
+date: "1 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Working with Random Numbers in R
+
+###Sampling Data
+```{r}
+# Generate two input vectors
+x <- rnorm(1000); y <- rep(NA,1000)
+
+# Randomnly combine them into a datavector
+my_data <- sample(c(x,y), 100)
+```
+
+###Generating random samples
+
+```{r}
+# Sampling a collection of random integers over a given length
+sample(10)
+sample(10, replace=TRUE)
+sample(10,size = 5)
+
+# This can also take into account different likelyhoods
+ratio <- c(0.7, 0.3)
+s <- sample(2, size=50, replace=TRUE, prob=ratio)
+paste("The ratio of 1 in this sample is :",sum(s[s==1])/length(s))
+paste("The ratio of 2 in this sample is :", sum(s[s==2])/length(s))
+sum(s[s==1])/length(s) 
+sum(s[s==2])/length(s)
+```
+
+
+
+###Sampling Distributions
+
+####Sampling from a gausssian Distribution
+```{r}
+x <- rnorm(1000)
+
+```
+
+

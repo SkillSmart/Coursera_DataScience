@@ -1,0 +1,73 @@
+---
+title: "R_Programming_tydiverse_package"
+author: "Frank Fichtenmueller"
+date: "1 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The collection of packages in the `tydiverse` package
+
+### Packages in the `tydiverse` package
+* `tydir` package for cleaning datasets
+* `dplyr` provides a range of verbs for arranging and subsetting `data.frames`
+* `margrittr` provides the functionality of `pipig`
+* `lubridate` provides convenient verbs for working with DateTime Objects in R
+
+
+### Deep Dive into the individual packages
+
+#### The `margrittr` package
+
+Let's first look at the basic idea of the piping operator as this is used heavily in conjunction with all other packages, especially
+in the `dpylr` and the `tidyr` workflows. 
+
+The `margrittr` package introduces the `%>%` or piping operator, that assigns the resulting object of a given transformation to the 
+following transformation procedure. 
+
+This enables one to write complex pretransformations, without creating a explicit number of intermediate variables, which would just clutter
+the namespace, as well as cause a large amount of unncessary code. 
+
+Lets look at an example
+```{r}
+require(magrittr)
+# Given a sample dataframe
+iris <- as.data.frame(data(iris))
+
+# We apply three distinct steps 
+# 1: We group the data by the factors of Species("versicolor", "virginica", "setosa")
+# 2: We create 3 summarised measure on the data (number of samples, the mean Sepal Lenght, and the mean Sepal Width)
+
+iris %>% 
+  group_by(Species) %>% 
+  summarise(n = n(), 
+            avg_length = mean(Sepal.Length), 
+            avg_wdth = mean(Sepal.Width))
+
+```
+
+As we can see, we use the piping operator to pass the resulting dataframe of each step to the next and just display the final
+result. All intermediate steps are discarded afterwards. 
+
+This is helpful to:
+
+* Keep an uncluttered namespace, and therefore keep the amount of unnecessary Memory requirements low
+* Produce very readable and easy to manage code, that can be easily reorganized and changed later on
+* Therefore leading to a very modularized code base for complex analytical pipelines, that can be rerun to update for changes in the underlying dataset
+* Make for easy documentation of the preprocessing pipeline.
+
+
+
+#### The `tydir` package
+
+
+
+#### The `dplyr` package
+
+
+
+
+

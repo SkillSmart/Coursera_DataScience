@@ -1,0 +1,65 @@
+---
+title: "R_Programming_SequencesOfNumbers"
+author: "Frank Fichtenmueller"
+date: "1 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Working with sequences of Numbers in R
+
+Different approaches to generating basic sequences
+```{r}
+1:10
+pi:10
+seq(1:10)
+seq(5,10,0.5)
+seq_30 <- seq(5,20, length=30)
+length(seq_30)
+
+# Enumerating a given vector e.g. for use in iterations
+seq_along(seq_30)
+```
+
+Creating replications of a given sequence
+```{r}
+# Creating a zero vector with length x=20
+rep(0, 20)
+
+# Repeating a certain sub vector a given times
+rep(c(1,2,3), times=10)
+
+# Repeating a sequence of items a given times each
+rep(c(1,2,3), each=5)
+```
+
+Indexing with boolean arrays
+```{r}
+
+```
+
+Returning the indices of a selection
+
+We can use the `which()` function to return an object representation of a subsets index location.
+```{r}
+# Generating an example matrix
+m <- matrix(1:60, ncol = 6)
+
+# indexing out all values above 24
+m[m > 24]
+
+# As this returns a vector representation, we might not like it
+which(m>24)
+```
+
+Using the `any()` function to return a logical evaluation if any of the items evaluate to TRUE
+
+```{r}
+any(m <0)
+```
+
+Using the `all()` funt
+
