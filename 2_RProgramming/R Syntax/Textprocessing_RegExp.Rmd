@@ -1,0 +1,27 @@
+---
+title: "R_TextProcessing_RegEx"
+author: "Frank Fichtenmueller"
+date: "1 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## TextProcessing and Regular Expressions in R
+
+
+#####Scope of this document:
+Describe specific functionalities and their packages for the topics of `Textprocessing` and the application of `Regular Expressions` to string selection. 
+
+*** 
+
+#####This file contains sections on the following topics:
+* Basic Text processing functions
+* Basic Text Manipulation Functions
+* Regular Expressions in R
+* the `RegEx` Functions
+* the `stringr` package
+
