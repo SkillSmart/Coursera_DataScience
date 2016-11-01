@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ## TextProcessing and Regular Expressions in R
-
+[Tidy Text Mining with R](http://tidytextmining.com/)
 
 #####Scope of this document:
 Describe specific functionalities and their packages for the topics of `Textprocessing` and the application of `Regular Expressions` to string selection. 
@@ -24,6 +24,7 @@ Describe specific functionalities and their packages for the topics of `Textproc
 * Regular Expressions in R
 * the `RegEx` Functions
 * the `stringr` package
+* the [tidytext package](https://github.com/juliasilge/tidytext)
 
 ### Basic commands for Text processing
 Text is represented as `string` objects. These can be split, recombined, changed and altered by all algorithmic functions. 
@@ -92,11 +93,81 @@ These include:
 * `.` - Any character other than a `\n`
 * `+` - **One or more** of the preceeding character are present
 * `*` - **Zero or more** of the preceeding character are present
-* `{}` - **Exact** numbers of times preceeding character should be present
-* `{2,5}` - **Range of times** preceeding characer should be present
-* `
+* `[a-z]` - **range** of characters
+* `[1-9]` - **range** of integers
+* `[xyz]` - **set** of characters
+* `[^xyz]` - **negation** of set
+* `\n` - **newline**
+* `{}` - **Exact** numbers of previous
+* `{2,5}` - **Range** of numbers of previous 
+* `{2,}` - **More than** 2 of previous
+* `^` - matches the **beginning** of a word
+* `$` - matches **End** of a word
+* `|` - matches **Either the first OR the second regEx**
 
 
+**Introducing a final usecase** 
+```{r}
+# Matching all statenames in the US that begin, or end in a vowel
+start_end_vowel <- "^[AEIOU]{1}.+[aeiou]{1}$"
+vowel_state_lgl <- grepl(start_end_vowel, state.name)
+state.name[vowel_state_lgl]
+```
+
+```{r}
+# Matching Beginning or End of word
+grepl("^[ab]+$", c("bab", "aab", "abc"))
+
+# Matching OR
+grepl("North|South", c("South Dakota", "North Carolina", "West Virginia"))
+
+
+```
+
+
+
+There are additionall `character sets` that come built into R:
+
+* `\\w` - words specify any letter, digit or _
+* `\\d` - digits specify any number(0-9)
+* `\\s` - whitespace character specify line breaks, tabs, spaces
+
+These have their compliments in capitalized form:
+* `\\W` - not words
+* `\\D` - not digits
+* `\\S` - not whitespace
+
+Lets look at some examples:
+```{r}
+grepl("\\w", "abcdefghijklmnopqrstuvwxyz0123456789")
+
+
+```
+
+##### Creating unique character sets
+
+* Use `[]` to define a unique character set to match
+* Use `^` to get the compliment of the statement following
+```{r}
+grepl("[aeiou]", "rhythms")
+
+grepl("[^aeiou]", "rhythms")
+
+grepl("[a-i]", "rhythms")
+
+grepl("[1-5]", "welcome2014-party")
+
+```
+
+##### Matching punctuation characters
+
+
+Putting two backslashes before a punctuation mark that is also a metacharacter indicates that you are looking for the symbol and not the metacharacter meaning
+
+
+```{r}
+grepl("\\+", "tragedy + time = humor")
+```
 
 
 ```{r}
@@ -105,6 +176,91 @@ head(state.name)
 
 # Applying a couple of different string matching criteria
 grepl(".", "Maryland")
+
+```
+
+#### Other basic regEx functions in R
+
+* `grepl()` - grep logical function
+* `sub(regex,num_found, string)` - replace the (num_found) instance of regex found in string
+* `gsub(regex, string)` - replace all instances of regex in string
+* `strsplit()` - split up strings according to provided regex
+
+```{r}
+# grepl()
+grepl("[Ii]", c("Hawaii", "Illinois", "Kentucky"))
+
+# grep()
+grep("[Ii]", c("Hawaii", "Illinois", "Kentucky"))
+
+# sub(
+sub("[Ii]", "1", c("Hawaii", "Illinois", "Kentucky"))
+
+# gsub()
+gsub("[Ii]", "1", c("Hawaii", "Illinois", "Kentucky"))
+
+# strsplit()
+two_s <- state.name[grep("ss", state.name)]
+two_s
+strsplit(two_s, "ss")
+
+```
+
+### Basic Text manipulation functions
+
+
+
+
+
+
+### The `stringr package`
+
+Its a part of the Tidyverse group of packages from Hadley Wickham. It provides a "data first" approach to functions involving regex.
+
+Usually the function calls are of sort `(string, regex)`. This is to facilitate the use with the `magrittr %>%` functionality, which passes the data as the first argument to following functioncalls. 
+And most functions in stringr start with **"str_"**
+
+There are the following functions:
+
+* `str_extract()` - returns the sub string of a string that matches the regex
+* `str_order()` - returns a numeric vector that corresponds to the alphabetical order of the strings in the provided vector
+* `str_pad()` - pads strings with other characters. useful when to be eventually printed for a person to read.
+* `str_to_title(cases)` - prints strings with first letter capitalized
+* `str_trim()`- deletes whitespace from both sides of a string
+* `str_wrap()` - inserts newlines in strings so that when the string is printed each line's length is limited
+* `word()` - allows you to index each word in a string as if it were a vector.
+
+Some examples for the function calls:
+```{r}
+require(stringr)
+
+# Creating a state table to work with
+state_tbl <- paste(state.name, state.area, state.abb)
+head(state_tbl)
+
+# Extracting all state area codes from the table 
+str_extract(state_tbl, "[0-9]+")
+
+# Alphabetical ordering of state.names
+str_order(state.name)
+
+# Padding a string
+str_pad("Thai", width = 8, side = "left", pad = "-")
+
+# Trimming whitespace
+to_trim <- c("   space", "the    ", "    final frontier  ")
+str_trim(to_trim)
+
+# Wrapping text
+pasted_states <- paste(state.name[1:20], collapse = " ")
+cat(str_wrap(pasted_states, width = 80))
+
+# indexing into a string like in a vector
+a_tale <- "It was the best of times it was the worst of times it was the age of wisdom it was the age of foolishness"
+
+word(a_tale, 2)
+word(a_tale, end = 3)
+word(a_tale, start = 11, end =15)
 
 ```
 

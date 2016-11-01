@@ -1,0 +1,94 @@
+---
+title: "R_Programming-MemoryManagement"
+author: "Frank Fichtenmueller"
+date: "1 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Memory efficient Routines for large dataset analysis in R
+
+We are looking at the following scope of topics:
+
+* the `pryr` package -  providing a number of useful functions for interrogating the memory usage in R
+* **Calulations** to derive the approximate Dataset Size, to calculate Memory Requirements
+
+
+### The `pryr` package 
+
+It contains the following functions:
+
+* `mem_used()` - to check for current memory usage
+* `object_size()` - to check for object size in kb/MB automatically transformed
+* `
+
+
+#### Strategies for freeing memory in R
+
+
+Clear unused object in the namespace
+```{r}
+if (require(pryr) == FALSE) {install.packages("pryr");library(pryr)}
+# use ls() to show all object currently loaded
+ls()
+
+# then check object for datasize with
+object_size(worldcup)
+```
+
+To check for the 5 largest objects in workspace
+```{r}
+if (require(magrittr) == FALSE){install.packages("magrittr"); library(magrittr)}
+
+# Inline Function to call the 5 largest objects
+high_mem <- names(sapply(ls(), function(x) object_size(get(x))) %>% sort %>%tail(5))
+
+## It uses the get() function, that returns the content of a named object in workspace like this...
+object_size(get(ls()[1]))
+
+## We could choose to rm these, but could not be sure how much space we really save, so...
+data("Titanic")
+object_size(Titanic)
+mem_change(rm("Titanic"))
+ls()
+```
+
+#### Calculating approximate memory demand when loading a dataset
+
+When reading in large datasets or creating large R objects, it's often useful to do a back of the envelope calculation of how much memory the object will occupy in the R session (ideally before creating the object). To do this it's useful to know roughly how much memory different types of atomic data types in R use.
+
+It's difficult to generalize how much memory is used by data types in R, but on most 64 bit systems today, integers are 32 bits (4 bytes) and double-precision floating point numbers (numerics in R) are 64 bits (8 bytes). Furthermore, character data are usually 1 byte per character. Because most data come in the form of numbers (integer or numeric) and letters, just knowing these three bits of information can be useful for doing many back of the envelope calculations.
+
+For example, an integer vector is roughly 4 bytes times the number of elements in the vector. We can see that for a zero-length vector, that still requires some memory to represent the data structure.
+
+```{r}
+object_size(integer(0))
+
+object_size(integer(1000))  ## 4 bytes per integer
+
+object_size(numeric(1000))  ## 8 bytes per numeric
+
+```
+
+If you are reading in tabular data of integers and floating point numbers, you can roughly estimate the memory requirements for that table by multiplying the number of rows by the memory required for each of the columns. This can be a useful exercise to do before reading in large datasets. If you accidentally read in a dataset that requires more memory than your computer has available, you may end up freezing your R session (or even your computer).
+
+The .Machine object in R can give you specific details about how your computer/operation system stores different types of data.
+```{r}
+str(.Machine)
+```
+
+Much of the point of this discussion of memory is to determine if your computer has sufficient memory to do the work you want to do. If you determine that the data you're working with cannot be completely stored in memory for a given R session, then you may need to resort to alternate tactics. We discuss one such alternative in the section below, "Working with large datasets"
+
+##### Garbage Collection Procedure to free Memory in R
+
+R has a garbage collection system that recycles unused memory and gives it back to R. This happens automatically without the need for user intervention.
+
+Roughly, R will periodically cycle through all of the objects that have been created and see if there are still any references to the object somewhere in the session.
+The gc() function in the base package can be used to explicitly trigger a garbage collection in R. Calling gc() explicitly is never actually needed, but it does produce some output that is worth understanding.
+```{r}
+gc()
+```
+The gc() function in the base package can be used to explicitly trigger a garbage collection in R. Calling gc() explicitly is never actually needed, but it does produce some output that is worth understanding.
