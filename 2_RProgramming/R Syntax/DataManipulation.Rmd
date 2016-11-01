@@ -1,0 +1,403 @@
+---
+title: "DataManipulation in R with dplyr & tidyr"
+author: "Frank Fichtenmueller"
+date: "1 November 2016"
+output: html_document
+---
+#####Working on Dataframes
+
+###Working with the dplyr package
+The dplyr package offers a clean and simple language to work on dataframes. It is based on splitting the work containing the selecting, reordering, filtering, subsetting and summarising into function calls in the form of verbs. 
+* filter()
+* select()
+* arange()
+
+As an easy to use example we will be working trough all possible functions on the basis of the flights dataset.
+To make the data present in a neater and more concise format, dplyr provides a unique datastructre the tbl_df
+```{r, echo=FALSE}
+if (!require(dplyr) == TRUE) {install.packages("dplyr");require(dplyr)}
+if (!require(nycflights13) == TRUE){install.packages("nycflights13"); require(nycflights13)}
+library(nycflights13)
+data("flights")
+flights <- tbl_df(flights)
+```
+Now we can use the View() function to get a clean and orderly presentation of the dataset, that is also easily rescalable. Something
+that is especially convenient when working with large and complicated datasets.
+```{r}
+glimpse(flights)
+# And of course use summary(flights) to extract the basic statistical measurements. 
+
+summary(flights)
+```
+The Dataset is quite large, so we will need to subset it to help speed up our calculations later on and get a better understanding of what is actually going on. 
+
+#### filter() / slice() for selecting a subset of rows
+
+The filter() is used to subset the rows in a dataframe based on a combination of evaluation characteristics. 
+
+```{r}
+filter(flights, month ==1, day ==1)
+```
+This is equivalent to the more verbose code in R:
+```{r}
+flights[flights$month ==1 & flights$day == 1,]
+```
+filter() works similarly to subset() except that you can give it any nubmer of filtering conditions, which are joined together with & (not &&). All other boolean operations apply as well. 
+
+```{r}
+head(filter(flights, month > 6 & day == 7),2)
+
+# Selecting on OR
+head(filter(flights, month == 1 | month==2),4)
+
+```
+if you want to select rows by their position in the dataset, use the slice() function
+```{r}
+slice(flights, 1:29)
+```
+
+####Arrange rows with arrange()
+similarly to filter(), but with the goal of reordering them. It takes a dataframe, and a set of column names. If more than one name is provided, each additional coumn will be used to break ties.
+
+```{r}
+arrange(flights, year, month, day, dep_time, dep_delay)
+```
+Ordering in descending order, can be applied to the individual variables one at a time. 
+```{r}
+arrange(flights, year, desc(month), day)
+```
+
+
+dplyr offers its
+
+
+####select() for selecting rows from a dataframe
+select offers possiblities to subset the dataframe based on the columns(attributes) contained. 
+These can be adressed by both the names and their respective order. 
+```{r}
+#Using the name attribute
+head(select(flights, contains("time")),2)
+
+#Using the number rank
+head(select(flights, 1:3),2)
+
+#Subsetting and reordering
+head(select(flights, 1,3,2,4),2)
+
+#Dropping a row
+head(select(flights,-5),2)
+
+```
+If you want to paste more complicated combinations, you can paste them as a list into the 
+function as an argument using the one_of()
+
+```{r}
+vars <- c("year","month", "day", "dep_time", "dest", "air_time", "origin", "distance")
+head(select(flights, one_of(vars)),2)
+```
+
+###Renaming variables
+
+Working wit live datasets, you have to regulary rename the attribute columns to make it easier or more appropriate to adress them in the following analysis. This is easily achieved using two different ways in dplyr.
+
+```{r}
+# Renaming variables during the selection, with only a subset beeing selected
+head(select(flights, year, month, arrival = arr_time),2)
+```
+If you want to keep the structure, but just rename a subset of the columns, you can use the rename() function
+```{r}
+head(rename(flights, scheduled = sched_arr),2)
+# This function call keeps all other variables automatically
+
+# You can easily use a prefix to rename multiple columns in a single call
+head(select(flights, petal = starts_with('Petal')),2)
+
+```
+As this involves the function call to select, in order to be able to adress the column names directly, we have to 
+specify the function to keep the rest.
+
+We can achieve this using the everything() function, that is a call to all current variables
+It returns the numbers of the variables as a list
+```{r}
+everything(flights)
+head(select(flights, petal = starts_with("Petal"),everything()),2)
+```
+
+
+###filter() and slice() - for subsetting entries(rows) 
+
+***
+
+These two files have been merged here. NEEDS SORTING OUT!! (Was to tired to continue here)
+
+***
+
+## R - Data Manipulation with Dplyr
+
+First we load and preprocess the dataset to be used here
+```{r, echo=FALSE}
+
+# We save the html location to a variable
+ext_tracks_file <- paste0("http://rammb.cira.colostate.edu/research/",
+                          "tropical_cyclones/tc_extended_best_track_dataset/",
+                          "data/ebtrk_atlc_1988_2015.txt")
+
+# Create a vector of the width of each column
+ext_tracks_widths <- c(7, 10, 2, 2, 3, 5, 5, 6, 4, 5, 4, 4, 5, 3, 4, 3, 3, 3,
+                       4, 3, 3, 3, 4, 3, 3, 3, 2, 6, 1)
+
+# Create a vector of column names, based on the online documentation for this data
+ext_tracks_colnames <- c("storm_id", "storm_name", "month", "day",
+                          "hour", "year", "latitude", "longitude",
+                          "max_wind", "min_pressure", "rad_max_wind",
+                          "eye_diameter", "pressure_1", "pressure_2",
+                          paste("radius_34", c("ne", "se", "sw", "nw"), sep = "_"),
+                          paste("radius_50", c("ne", "se", "sw", "nw"), sep = "_"),
+                          paste("radius_64", c("ne", "se", "sw", "nw"), sep = "_"),
+                          "storm_type", "distance_to_land", "final")
+
+# Read the file in from its url
+ext_tracks <- read_fwf(ext_tracks_file, 
+                       fwf_widths(ext_tracks_widths, ext_tracks_colnames),
+                       na = "-99")
+
+```
+
+
+#### Directly summarize 
+```{r}
+ext_tracks %>%
+  summarize(n_obs = n(),
+            worst_wind = max(max_wind),
+            worst_pressure = min(min_pressure))
+```
+
+#### Using an own summary function with dplyr
+```{r}
+knots_to_mph <- function(knots){
+  mph <- 1.152 * knots
+}
+
+ext_tracks %>%
+  summarize(n_obs=n(),
+            worst_winds = knots_to_mph(max(max_wind)),
+            worst_pressure = min(min_pressure))
+            
+```
+
+#### Creating stratified summaries by a grouping of the data
+
+```{r}
+# Use the `group_by` function to compare in groups. This in itself does not change the data 
+ext_tracks %>%
+  group_by(storm_name, year) %>%
+  head()
+
+# It just becomes evident once we apply summary statistics, that are now summarizing along the stratified groups
+ext_tracks %>%
+  group_by(storm_name, year) %>%
+  summarize(n_obs = n(),
+            worst_winds = knots_to_mph(max(max_wind)),
+            worst_pressue  = min(min_pressure))
+
+# This can be especially usefull when preparing data for visualization
+ext_tracks %>%
+  group_by(storm_name) %>%
+  summarize(worst_wind = knots_to_mph(max(max_wind))) %>%
+              ggplot(aes(x = worst_wind)) + geom_histogram()
+
+```
+
+
+##### Selecting and Filtering Data
+
+```{r}
+# Its easy to `select()` the columns we are interested in
+ext_tracks %>%
+  select(storm_name, month, day, hour, year, latitude, longitude, max_wind) 
+
+# When we want to use a multitude of rows that surround a common theme, mostly they share parts of their col_name
+ext_tracks %>%
+  select(storm_name, ends_with("itude"), starts_with("radius_34"))
+```
+
+The following function calls are available:
+
+* `ends_with()`
+* `starts_with()`
+* `contains()`
+* `matches()`
+
+####Subsetting the data with `filter()`
+
+This lets us select a subset of the entries that match a certain boolean selector query
+
+```{r}
+
+# Short example code
+ext_tracks %>%
+  select(storm_name, hour, max_wind) %>%
+  filter(hour == "00") %>%
+  head(3)
+
+# Application
+ext_tracks %>%
+  group_by(storm_name, year) %>%
+  summarize(worst_wind = max(max_wind)) %>%
+  filter(worst_wind >= 160)
+```
+
+If you would like to string several logical conditions together and select rows where all or any of the conditions are true, you can use the "and" (&) or "or" (|) operators. For example, to pull out observations for Hurricane Andrew when it was at or above Category 5 strength (137 knots or higher), you could run:
+
+```{r}
+ext_tracks %>%
+  select(storm_name, month, day, hour, latitude, longitude, max_wind) %>%
+  filter(storm_name == "ANDREW" & max_wind >= 137)
+```
+
+##### Add or change columns with `mutate()`
+
+For this example we work on the 2010 World Cup Dataset
+```{r}
+# Loading libraries and DataFrame
+require(faraway); require(worldcup)
+
+worldcup <- worldcup %>%
+  mutate(player_name = rownames(worldcup))
+
+# Taking a short look at the data
+worldcup %>% slice(1:3)
+```
+
+##### Using `mutate()` in combination with `group_by()`
+
+When useing `mutate()` on  a grouped dataset, the summarized data according to that group is added as a column. The values are assigned based on the grouping criteria. Other than with `summarize()` this information is added directly into the original dataset.
+
+```{r}
+# Adding the average Shots based on position to the individual entry
+worldcup %>%
+  group_by(Position) %>%
+  mutate(ave_shots = mean(Shots)) %>%
+  ungroup()
+```
+
+`rename`, if you want to change a columns name, but keep everything else the same 
+```{r}
+worldcup %>%
+  rename(Name = player_name) %>%
+  slice(1:3)
+```
+
+
+## Working with the tidyr package
+
+The `tidyr()` package contains relevant functions to rearrange data towards the goal of "tidy" data principles. 
+
+* All observations are in a single row
+* Each variable is in its own column 
+* Each 
+
+For this we work on the "VADeaths" Dataset
+```{r}
+data("VADeaths")
+head(VADeaths)
+```
+
+```{r}
+# First, move the "age" variable from the row names to its own column
+
+VADeaths <- VADeaths %>%
+  tbl_df() %>%
+  mutate(age = row.names(VADeaths))
+
+head(VADeaths)
+```
+##### Use `gather()` to combine columns into each other
+
+When we want to combine information that was spread out over different columns, we can use `gather()`
+```{r}
+VADeaths <- VADeaths %>%
+  gather(key = key, value = death_rate, -age)
+
+head(VADeaths)
+```
+
+Even if your data is in a tidy format, gather is occasionally useful for pulling data together to take advantage of faceting, or plotting separate plots based on a grouping variable
+
+```{r}
+require(tidyr); require(ggplot2)
+
+# Looking at what happens when gathering information here
+worldcup %>%
+  select(Position, Time, Shots, Tackles, Saves) %>%
+  gather(Type, Number, -Position, -Time) %>%
+  slice(1:10)
+
+# Drawing the information out in a plot
+worldcup %>%
+  select(Position, Time, Shots, Tackles, Saves) %>%
+  gather(Type, Number, -Position, -Time) %>%
+  ggplot(aes(x = Time, y = Number)) +
+  geom_point() +
+  facet_grid(Type ~ Position)
+```
+
+The spread function is less commonly needed to tidy data. It can, however, be useful for creating summary tables. For example, if you wanted to print a table of the average number and range of passes by position for the top four teams in this World Cup (Spain, Netherlands, Uruguay, and Germany), you could run:
+
+```{r}
+library(knitr)
+
+# Summarize the data to create the summary statistics you want
+wc_table <- worldcup %>% 
+  filter(Team %in% c("Spain", "Netherlands", "Uruguay", "Germany")) %>%
+  select(Team, Position, Passes) %>%
+  group_by(Team, Position) %>%
+  summarize(ave_passes = mean(Passes),
+            min_passes = min(Passes),
+            max_passes = max(Passes),
+            pass_summary = paste0(round(ave_passes), " (", 
+                                  min_passes, ", ",
+                                  max_passes, ")")) %>%
+  select(Team, Position, pass_summary)
+
+# What the data looks like before using `spread`
+wc_table
+
+# Use spread to create a prettier format for a table
+wc_table %>%
+  spread(Position, pass_summary) %>%
+  kable()
+```
+
+#### using `cut()` to break a continous variable into distinct categories
+
+When we want to reduce the complexity of a continous variables information, to measure its impact on another variable 
+over the range of a distinct amount of steps, the `cut()` function applies.
+
+```{r}
+# Loading the titanic Dataset
+require(titanic)
+
+# Breking the Age Variable, to sort by reasonalbe Agegroups for the decisive situation
+titanic_3 <- titanic %>% 
+  select(Survived, Pclass, Age, Sex) %>%
+  filter(!is.na(Age)) %>%
+  mutate(agecat = cut(Age, breaks = c(0, 14.99, 50, 150), 
+                      include.lowest = TRUE,
+                      labels = c("Under 15", "15 to 50", "Over 50")))
+```
+
+```{r}
+# Creating a summary statistic to hightlight the relation between Age and survival chance
+
+titanic_4 <- titanic %>% 
+  select(Survived, Pclass, Age, Sex) %>%
+  filter(!is.na(Age)) %>%
+  mutate(agecat = cut(Age, breaks = c(0, 14.99, 50, 150), 
+                      include.lowest = TRUE,
+                      labels = c("Under 15", "15 to 50",
+                                 "Over 50"))) %>%
+  group_by(Pclass, agecat, Sex) %>%
+  summarize(Pclass, agecat, Sex, N = n(), survivors = n(survived), perc_survived = n(Survived)/ n())
+```
+

@@ -1,0 +1,49 @@
+---
+title: "R_Programming_DescriptiveStatistics"
+author: "Frank Fichtenmueller"
+date: "1 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Calculating Descriptive Statistics in R
+Whenever you're working with a new dataset, the first thing you should do is look at it! What is the format of the data? What are the dimensions? What are the variable names? How are the variables stored? Are there missing data? Are there any flaws in the data?
+
+First get an introduction to the data you are using
+```{r}
+data("iris")
+
+class(iris)
+dim(iris)
+
+#Checking for Object Size in Memory
+object.size(plants)
+
+```
+
+Get a feeling for whats inside
+```{r}
+names(iris)
+
+# Take a look at the dataset
+head(iris, 10)
+tail(iris, 10)
+
+
+```
+
+Generate explicit summary statistics to get a feeling for distribution and scale
+```{r}
+# Next take a look at the variables distributions in summary statistics
+summary(iris)
+
+# Often in summary statistics, categorial variables might be truncated into a summary category "other"
+table(iris$Species)
+
+# To summarize this first glimpse into the structure we can finish off with
+str(iris)
+```
+
