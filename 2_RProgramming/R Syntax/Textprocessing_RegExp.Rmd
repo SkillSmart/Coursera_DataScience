@@ -25,3 +25,86 @@ Describe specific functionalities and their packages for the topics of `Textproc
 * the `RegEx` Functions
 * the `stringr` package
 
+### Basic commands for Text processing
+Text is represented as `string` objects. These can be split, recombined, changed and altered by all algorithmic functions. 
+
+```{r}
+# Concatening Strings
+paste("Square", "Circle", "Triangle")
+
+# sep defines the string to use as binding element
+paste("Square", "Circle", "Triangle", sep="+")
+
+# Shortcut to combining without any space
+paste0("Square", "Circle", "Triange")
+```
+
+This also works when passing a string to paste()
+```{r}
+# When pasting a vector, each element is pasted after the other
+s <- c("Square", "Circle", "Triangle")
+paste("my favorites is a", s)
+
+# The string can be injected anywhere
+city <- c("Tokyo", "London")
+times <- c('best', 'worst')
+paste("The", times," city was", city)
+```
+
+specify the `collapse=" "` argument to `paste()` to collapse into a single string.
+Enables to print all at the same time.
+```{r}
+paste0(c("Square", "Circle", "Triangle"), collapse=" ")
+```
+
+#### Functions to alter the text
+
+* `tolower()`
+* `toupper()`
+* etc....
+
+(!!!! TODO: ENTER ALL RELATED FUNCTIONS HERE)
+
+
+### Regular Expressions
+A regular expression is a string that defines a pattern that could be contained within another string. A regular expression can be used for searching for a string, searching within a string, or replacing one part of a string with another string. In this section I might refer to a regular expression as a regex, just know that they're the same thing.
+
+Regular expressions use characters to define patterns of other characters.
+
+
+#### Applying a regExp with the `grepl()` function in the Base Package
+
+```{r}
+regular_expression <- "a"
+regular_expression2 <- "u"
+string_to_search <- "Maryland"
+
+# Searching 
+grepl(regular_expression, string_to_search)
+grepl(regular_expression2, string_to_search)
+```
+
+Like this we can easily search trough strings to identify matching patterns. To this end we use a list of meta characters,
+to match on individual patterns, and exclude all unimportant patterns from our search.
+
+These include:
+
+* `.` - Any character other than a `\n`
+* `+` - **One or more** of the preceeding character are present
+* `*` - **Zero or more** of the preceeding character are present
+* `{}` - **Exact** numbers of times preceeding character should be present
+* `{2,5}` - **Range of times** preceeding characer should be present
+* `
+
+
+
+
+```{r}
+# Example dataset
+head(state.name)
+
+# Applying a couple of different string matching criteria
+grepl(".", "Maryland")
+
+```
+
