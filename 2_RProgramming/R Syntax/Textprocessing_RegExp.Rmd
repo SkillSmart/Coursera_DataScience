@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ## TextProcessing and Regular Expressions in R
+
+External Ressources to add:
 [Tidy Text Mining with R](http://tidytextmining.com/)
 
 #####Scope of this document:

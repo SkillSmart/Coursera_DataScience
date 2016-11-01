@@ -69,13 +69,6 @@ fit_glm$terms
 
 ```
 
-```
-
-
-
-
-
-
 These are the arguments that can be set using the train function
 ```{r}
 args(train.default)
@@ -326,6 +319,46 @@ qplot(wage, colour=eduction, data=trn_Wage, geom="density")
 
 ```
 
+
+
+
+****
+
+Code Graveyard: This is code that i found and that seemed related
+****
+
+```{r, eval=FALSE}
+library(caret)
+library(AppliedPredictiveModeling)
+set.seed(3433)
+data(AlzheimerDisease)
+adData = data.frame(diagnosis,predictors)
+inTrain = createDataPartition(adData$diagnosis, p=3/4)[[1]]
+training = adData[ inTrain,]
+testing = adData[-inTrain,]
+ss <- training[,grep('^IL', x = names(training) )]
+preProc <- preProcess(ss, method='pca', thresh=0.8, 
+                      outcome=training$diagnosis)
+preProc$rotation
+
+
+adData = data.frame(diagnosis, predictors)
+testIndex = createDataPartition(diagnosis, p=0.50, list=FALSE)
+training = adData[-testIndex,]
+testing = adData[testIndex,]
+
+
+library(AppliedPredictiveModeling)
+data(concrete)
+library(caret)
+set.seed(1000)
+inTrain = createDataPartition(mixtures$CompressiveStrength, p = 3/4)[[1]]
+training = mixtures[ inTrain,]
+testing = mixtures[-inTrain,]
+hist(concrete$Superplasticizer)
+summary(concrete)
+
+```
 
 
 

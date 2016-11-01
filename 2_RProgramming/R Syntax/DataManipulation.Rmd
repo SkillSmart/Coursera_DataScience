@@ -401,3 +401,202 @@ titanic_4 <- titanic %>%
   summarize(Pclass, agecat, Sex, N = n(), survivors = n(survived), perc_survived = n(Survived)/ n())
 ```
 
+
+
+*******
+This additional code, i found out of some practice session : TODO!!!! Edit code
+****
+```{r}
+library(nycflights13); data(flights)
+flights <- tbl_df(flights)
+
+hist(flights$month)
+summary(flights$month)
+range(flights$month)
+boxplot(flights$month)
+
+hist(flights$day)
+summary(flights$day)
+range(flights$day)
+
+longest_flights <- flights %>%
+  select(month, day, carrier, air_time, distance) %>%
+  filter(air_time > quantile(air_time, p=0.5, na.rm=TRUE)) %>%
+  group_by(carrier) %>%
+  summarize(n = count, mean_airtime = mean(air_time), dist_avg = mean(distance), dist_var = sd(distance)) %>%
+  arrange(desc(mean_airtime), desc(dist_avg))
+
+longest_flights
+
+
+
+# Working on the mamals sleep datasets
+
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+msleep %>% select(name:order)
+msleep %>% select(starts_with('sl'))
+msleep %>% select(ends_with('re'))
+contains()
+matches()
+one_of()
+
+# Select all columns from genus to conservation and filter the rows for mamals that sleep a total of more than 16 hours and have a body weight of greater than 1 kg
+msleep
+msleep %>% select(-(genus:conservation)) %>%
+  filter(sleep_total > 16 & bodywt > 1)
+
+# Create a new column called rem_proportion which is the ratio of rem sleep to total amount of sleep and create boxplots of the rem_proportion column split and 
+# colored by the vore column. Create labels for the x and y axis.
+msleep %>%
+  mutate(rem_proportion = sleep_rem / sleep_total) %>%
+  ggplot(aes(x = vore, y = rem_proportion, fill = vore)) + 
+  geom_boxplot() + xlab("Type of diet") + 
+  ylab("Proportion") + labs(title = "Proportion of rem sleep")
+
+# Select all columns that start with the character string "sl" or ends with the character string "wt", create a new column called rem_proportion which 
+# is the ratio of rem sleep to total amount of sleep, create a second column bodywt_grams which is the bodywt column in grams and filter for the rows 
+# 20 to 30 in the msleep data set by numerical position.
+
+Hint: Look at the slice() help file to filter for rows by numerical position.
+msleep %>%
+  select(starts_with("sl") , ends_with('wt')) %>%
+  mutate(rem_proportion = sleep_rem / sleep_total, bodywt_grams = bodywt * 1000) %>%
+  slice(10:30)
+
+
+# To arrange (or re-order) rows by a particular column such as the taxonomic order, list the name of the column you want to arrange the rows by
+msleep %>% 
+  arrange(order)
+
+
+# Select all columns names with the characters "sleep" and arrange the rows for the sleep_rem in a decreasing order.
+# Hint: look at the ?arrange help file for the desc() option.
+msleep %>%
+  select(contains('sleep')) %>%
+  arrange(desc(sleep_rem))
+
+
+# Select three columns from msleep (name, order, sleep_total), arrange the rows in the sleep_total column in a descending order, and filter the rows 
+# for mammals that sleep for a total of 16 or more hours.
+msleep %>%
+  select(name, order, sleep_total) %>%
+  arrange(desc(sleep_total)) %>%
+  filter(sleep_total >= 16)
+
+
+# to compute the average number of hours of sleep, apply the mean() function to the column sleep_total and call the summary value avg_sleep.
+msleep %>%
+  summarise(avg_sleep = mean(sleep_total), length = n(), max_sleep = max(sleep_total), min_sleep = min(sleep_total), n_distinct = n_distinct(sleep_total))
+
+# Summarize sleep_total column in the msleep data set with the average sleep, the minimum and maximum amount of sleep, and the total number of mammal
+msleep %>%
+  summarise(avg_sleep = mean(sleep_total), 
+            min_sleep = min(sleep_total), 
+            max_sleep = max(sleep_total), 
+            n = n())
+
+# Say we wanted to calculate the standard deviation of the body and brain weights for each of factor in the vore column
+msleep$vore
+msleep %>%
+  ggplot(aes(x = vore, y = bodywt, fill = vore)) +
+  geom_boxplot() + xlab("Type of Diet") + ylim(0,450)
+
+# Split the msleep data frame by the taxonomic order, then for each taxonomic order summarize the sleep_total with the average sleep, 
+# the minimum and maximum amount of sleep, and the total number of mammals in each order.
+
+msleep %>%
+  group_by(order) %>%
+  summarize(avg_sleep = mean(sleep_total),
+            min_sleep = min(sleep_total),
+            max_sleep = max(sleep_total),
+            total_n = n())
+
+# Joining Dataframes with dplyr
+x <- 
+
+left_join(x,y, by='x1') # Join matching rows from y -> x
+right_join(x,y, by='x1') # matching from x -> y
+inner_join(x,y, by=) # Join data. retain only complete data
+full_join(x,y, by=) # Join data, keep everything
+
+# Filtering joins
+semi_join(x,y, by=) # all rows in x have to match y
+anti_join(x,y, by=) # all rows in x have to not-match y
+
+
+# Setting up a small dataset to work with
+
+library(readr)
+
+oscars <-"
+name,movie,category
+Adam McKay,The Big Short,Best Director
+Alejandro González Iñárritu,The Revenant,Best Director
+Lenny Abrahamson,Room,Best Director
+Tom McCarthy,Spotlight,Best Director
+George Miller,Mad Max: Fury Road,Best Director
+Bryan Cranston,Trumbo,Best Actor
+Matt Damon,The Martian,Best Actor
+Michael Fassbender,Steve Jobs,Best Actor
+Leonardo DiCaprio,The Revenant,Best Actor
+Eddie Redmayne,The Danish Girl,Best Actor
+Cate Blanchett,Carol,Best Actress
+Brie Larson,Room,Best Actress
+Jennifer Lawrence,Joy,Best Actress
+Charlotte Rampling,45 Years,Best Actress
+Saoirse Ronan,Brooklyn,Best Actress
+"
+oscars <- read_csv(oscars, trim_ws = TRUE, skip = 1)
+oscars 
+
+movies <-"
+movie,length_mins
+The Big Short,130
+Star Wars: The Force Awakens,135
+Brooklyn,111
+Mad Max: Fury Road,120
+Room,118
+The Martian,144
+The Revenant,156
+Spotlight,128
+"
+movies <- read_csv(movies, trim_ws = TRUE, skip = 1)
+movies 
+
+left_join(oscars, movies, by='movie')
+right_join(oscars, movies, by='movie')
+inner_join(oscars, movies, by='movie')
+full_join(oscars, movies, by='movie')
+
+
+semi_join(oscars, movies, by='movie')
+semi_join(movies, oscars, by='movie')
+
+# Combing the datasets and returning all rows from the oscars, and in both the oscars and movies column
+left_join(oscars, movies, by='movie')
+
+# Using the dplyr join functions, combine the columns from the oscars and movies data sets and return all 
+# rows from the movies data set and all columns in both the oscars and movies columns.
+right_join(oscars, movies, by='movie')
+
+# Using the dplyr join functions, return all rows from oscars data set where there are not matching values in 
+# movies, only keeping the columns from the oscars data set.
+anti_join(oscars, movies, by='movie')
+
+
+
+
+###Advanced Work with dplyr, ggplot, tidyr on the nycflights13 dataset
+
+First loading the required libraries and the datasets
+
+######
+library(dplyr); library(nycflights13); library(ggplot2); library(tidyr)
+
+
+
+```
+
