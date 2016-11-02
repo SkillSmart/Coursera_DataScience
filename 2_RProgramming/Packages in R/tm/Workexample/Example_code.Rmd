@@ -1,0 +1,317 @@
+---
+title: "R_TextMining_Examples"
+author: "Frank Fichtenmueller"
+date: "2 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## This is an example Code to Conduct Learning in NLP with R
+
+The following packages are used:
+
+* openNLP
+* tm
+* NLP
+
+*** 
+
+
+Prepartion
+```{r}
+library(tm)
+setwd("D:/Dropbox/Programming/Coursera_DataScience/2_RProgramming/Packages in R/tm/Workexample")
+```
+```{r}
+glimpse <- function(data){ a <- writeLines(as.character(data[[1]]))}
+```
+
+### Creating the Text Corpus
+
+#### Reading in a folder of text documents
+```{r}
+docs <- Corpus(DirSource("./data/"))
+
+# Looking at the strucutre of the corpus object
+docs
+```
+
+Inspect a document in the corpus
+```{r}
+# When looking at a particular document use..
+writeLines(as.character(docs[[30]]))
+```
+
+
+Cleaning and transforming the data is made easy with tm
+```{r}
+# There are a couple of transformations availabe as build in functions in the tm package
+getTransformations()
+```
+
+The available Transformation functions are:
+
+* `removeNumbers()`
+* `removePunctuation`
+* `removeWords`
+* `stemDocument`
+* `stripWhitespace`
+
+
+Yet : 
+
+There are a few preliminary clean-up steps we need to do before we use these powerful transformations. If you inspect some documents in the corpus (and you know how to do that now), you will notice that I have some quirks in my writing. For example, I often use colons and hyphens without spaces between the words separated by them. Using the removePunctuation transform  without fixing this will cause the two words on either side of the symbols  to be combined. Clearly, we need to fix this prior to using the transformations.
+
+To fix the above, one has to create a custom transformation. The tm package provides the ability to do this via the content_transformer function. This function takes a function as input, the input function should specify what transformation needs to be done. In this case, the input function would be one that replaces all instances of a character by spaces. As it turns out the gsub() function does just that.
+
+```{r}
+# create a function to insert spaces after punctuation, where there is none so far
+toSpace <- content_transformer(function(x, pattern) {return (gsub(pattern, " ", x))})
+```
+
+Now we apply this function to eliminate colons and hyphens:
+```{r}
+docs <- tm_map(docs, toSpace, "-")
+docs <- tm_map(docs, toSpace, ":")
+```
+
+After this, we can now apply the more advanced transformation functions
+```{r}
+# First we remove all punctuation
+docs <- tm_map(docs, removePunctuation)
+writeLines(as.character(docs[[1]]))
+```
+
+As we can clearly see, the "non-standard" punctuation is still there. 
+```{r}
+docs <- tm_map(docs, toSpace, "'")
+docs <- tm_map(docs, toSpace, "`")
+docs <- tm_map(docs, toSpace, " -")
+writeLines(as.character(docs[[1]]))
+```
+
+If all is well, you can move to the next step which is  to:
+
+* Convert the corpus to lower case
+* Remove all numbers.
+
+First we transform all words to lower case with the `tolower()` function, but we have to wrap it in the `content_transformer()` that can properly
+handle a corpus object.
+```{r}
+# First we transform all words to lower case. 
+docs <- tm_map(docs, content_transformer(tolower))
+```
+
+Next we can use the `removeNumbers` function to clear of this, as we they do not contribute to the meaning of the text in this case. 
+```{r}
+# Strip digits from the text
+docs <- tm_map(docs, removeNumbers)
+writeLines(as.character(docs[[1]]))
+```
+
+Now we go about removing **common words** from the text, these are often repeated and do not carry any meaning to the content of the text. 
+
+```{r} 
+# First we remove the Stopwords using teh standard list in tm
+docs <- tm_map(docs, removeWords, stopwords("english"))
+writeLines(as.character(docs[[1]]))
+```
+
+Finally we remove all extraneous white space with the `stripWhitespace` command
+```{r}
+docs <- tm_map(docs, stripWhitespace)
+writeLines(as.character(docs[[1]]))
+```
+
+### Stemming
+
+Typically a large corpus will contain  many words that have a common root - for example: offer, offered and offering.  Stemming is the process of reducing such related words to their common root, which in this case would be the word offer.
+
+```{r}
+library(SnowballC)
+
+# Stem documents
+docs <- tm_map(docs, stemDocument)
+glimpse(docs)
+```
+
+This prcess is quite crude, a better version is to use [Lemmatisation](https://en.wikipedia.org/wiki/Lemmatisation) to take into account the neigboring sentences and retrieve the meaning of the word in its context as a [part of speech](https://en.wikipedia.org/wiki/Part_of_speech).
+A [Part of Speech Tagger](https://en.wikipedia.org/wiki/Part-of-speech_tagging) for automatic word classification is available in the `openNLP` package. 
+
+It is a R implementation of the **APACHE openNLP JAVA package**. We will take a short look at it now.
+```{r}
+library(openNLP)
+if (require(openNLP) == FALSE){install.packages("openNLP")}
+
+```
+
+
+Implementing a short POS Implementation
+
+```{r}
+tagPOS <-  function(x, ...) {
+            s <- as.String(x)
+            word_token_annotator <- Maxent_Word_Token_Annotator()
+            a2 <- Annotation(1L, "sentence", 1L, nchar(s))
+            a2 <- annotate(s, word_token_annotator, a2)
+            a3 <- annotate(s, Maxent_POS_Tag_Annotator(), a2)
+            a3w <- a3[a3$type == "word"]
+            POStags <- unlist(lapply(a3w$features, `[[`, "POS"))
+            POStagged <- paste(sprintf("%s/%s", s[a3w], POStags), collapse = " ")
+            list(POStagged = POStagged, POStags = POStags)
+        }
+```
+
+This results in a annotated string, where each word is returned with a POStag like the following.
+
+
+ADJ	Adjective
+ADJC	Adjective, comparative
+ADJS	Adjective, superlative
+ADV	Adverb
+ADVC	Adverb, comparative
+ADVS	Adverb, superlative
+ADVW	Adverb, Wh-
+NUM	Cardinal number
+CC	Conjunction, coordinating
+CS	Conjunction, preposition or subordinating
+DT	Determiner
+DTW	Determiner, Wh-
+EX	Existential there
+FW	Foreign word
+INT	Interjection
+LS	List item marker
+VM	Modal
+NN	Noun, singular
+NNS	Noun, plural
+NP	Noun, proper, singular
+NPS	Noun, proper, plural
+PT	Particle
+POS	Possessive ending
+PDT	Predeterminer
+PP	Pronoun, personal
+PP$	Pronoun, possessive
+PW	Pronoun, Wh-
+PW$	Pronoun, Wh-, possessive
+TO	'to'
+VB	Verb, 'Be', base form
+VBZ	Verb, 'Be', 3rd person singular present
+VBG	Verb, 'Be', gerund or present participle
+VBP	Verb, 'Be', non-3rd person singular present
+VBN	Verb, 'Be', past participle
+VBD	Verb, 'Be', past tense
+VH	Verb, 'Have', base form
+VHZ	Verb, 'Have', 3rd person singular present
+VHG	Verb, 'Have', gerund or present participle
+VHP	Verb, 'Have', non-3rd person singular present
+VHN	Verb, 'Have', past participle
+VHD	Verb, 'Have', past tense
+VV	Verb, base form
+VVZ	Verb, 3rd person singular present
+VVG	Verb, gerund or present participle
+VVP	Verb, non-3rd person singular present
+VVN	Verb, past participle
+VVD	Verb, past tense
+
+The following search Terms are related
+
+- ADJ*	Adjective
+_ ADV*	Adverb
+- ART*	Article
+- C*	Conjunction
+- DT*	Determiner
+- N*	Noun
+- PT*	Particle
+- PRE*	Preposition
+- P*	Pronoun
+- V*	Verb
+
+```{html}
+<table border="0" cellpadding="2">
+	<tr class="tr1"><td width="50">ADJ*</td><td>Adjective</td></tr>
+	<tr class="tr2"><td>ADV*</td><td>Adverb</td></tr>
+	<tr class="tr1"><td>ART*</td><td>Article</td></tr>
+	<tr class="tr2"><td>C*</td><td>Conjunction</td></tr>
+	<tr class="tr1"><td>DT*</td><td>Determiner</td></tr>
+	<tr class="tr2"><td>N*</td><td>Noun</td></tr>
+	<tr class="tr1"><td>PT*</td><td>Particle</td></tr>
+	<tr class="tr2"><td>PRE*</td><td>Preposition</td></tr>
+	<tr class="tr1"><td>P*</td><td>Pronoun</td></tr>
+	<tr class="tr2"><td>V*</td><td>Verb</td></tr>
+</table>
+
+```
+
+
+Now we can write a function to return substrings with a given POStag as follows:
+```{r}
+select_POS <- function(tagged_str, POS) {
+  pos_sel <- strsplit(unlist(tagged_str[1]),'/NN')
+  pos_sel <- tail(strsplit(unlist(pos_sel[1])," ")[[1]],1)
+  }
+```
+
+Lets see what results we get with these examples
+```{r}
+# First we create a couple of testcases
+sen1 <- "A Bird was sitting on the roof, as a small girl happily threw the ball up in the air."
+sen2 <- "I felt really lucky to be able to get that promotion. Really man, that was what i have always dreamed of!!!"
+sen3 <- "Regarding the economic and humanitarian crisis in the middle east, lots of impressive research result have gone lost in explaining this."
+```
+
+Now we use the list of texts and `lapply()` to apply the POStagging function to all texts, and store the results in a list.
+This makes it easy to work on subsamples of the data and compare the inidividual cases.
+
+```{r}
+corpus <- c(sen1,sen2,sen3)
+corpus <- lapply(corpus, tagPOS)
+corpus[1]
+```
+
+
+
+
+***
+
+Here Starts the Code Examples Section
+
+***
+Example Codesnippets:
+
+**Cleaning and stemming
+```{r}
+
+clean_string <- function(string){
+  string <- removePunctuation(string)
+  string <- removeWords(string, stopwords("SMART"))
+  string <- tolower(string)
+  string <- removeNumbers(string)
+  string <- stripWhitespace(string)
+  string <- stemDocument(string)
+  return(string)
+}
+
+removePunctuation("This, is my text.")
+```
+
+
+TEst Cases:
+```{r}
+clean_string("I search for, 0989,  someone to take care of my dog")
+clean_string("Someone to do webdesign, plan the software reviews and do testing.")
+clean_string("If it would be possible for this beautiful system to hire me a content strategist, then i would really really appreciate it")
+
+```
+
+
+Function:
+
+# Nimmt ganzen Satzen satz entgegen
+# punctuation, stopwords entfernen
+# lower case 
+
+
+

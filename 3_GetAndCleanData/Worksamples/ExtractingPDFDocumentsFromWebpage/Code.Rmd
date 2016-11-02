@@ -1,0 +1,55 @@
+---
+title: "R_ReadingInPDF"
+author: "Frank Fichtenmueller"
+date: "2 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Library Calls
+```{r}
+library(stringr)
+library(tm)
+if(require(tm) == FALSE){install.packages("tm"); library("tm")}
+if(require(tidyverse) == FALSE){install.packages("tidyverse"); library("tidyverse")}
+```
+We are working along an example from the [university of Virginia](http://data.library.virginia.edu/reading-pdf-files-into-r-for-text-mining/)
+
+
+## R Worksheet on Reading in PDF with the `TM` Package
+
+```{r}
+setwd("D:/Dropbox/Programming/Coursera_DataScience/3_GetAndCleanData/Worksamples/ExtractingPDFDocumentsFromWebpage")
+```
+
+Downloading the pdf documents to be analyzed. 
+1. Download all documents from the server, using a generated list from the webpage scrape.
+```{r, eval=FALSE}
+# Load the datainfo
+begin = "https://www.supremecourt.gov"
+end <- read_lines("download.txt")
+downloads_html <- paste0(begin, end)
+downloads_html <- gsub("[^a-z0-9A-Z/.:_/-]","", downloads_html)
+downloads_html[1]
+
+```
+
+Download the pdfs
+```{r, eval=FALSE}
+step = 150
+
+for (i in 1:step) {
+  download.file(url = downloads_html[i], destfile = paste0("./data/",i,".pdf"))
+}
+
+```
+
+Read in the PDF Files
+
+```{r}
+txt <-
+```
+
+

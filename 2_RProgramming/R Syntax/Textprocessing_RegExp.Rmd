@@ -1,5 +1,5 @@
 ---
-title: "R_TextProcessing_RegEx"
+title: "R_Working with Regular Expressions in R"
 author: "Frank Fichtenmueller"
 date: "1 November 2016"
 output: html_document
