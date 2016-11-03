@@ -114,4 +114,26 @@ ggplot(data = expDistrMean, aes(x = means)) +
   scale_x_continuous(breaks=seq(mu-3,mu+3,1), limits=c(mu-3,mu+3)) 
 ```
 
+## Draw normal Q-Q Plot for Simulated Data
+```{r, eval=FALSE}
+qqnorm(results$SampleMean, main ="Normal Q-Q Plot of the Simulated Data")
+ qqline(results$SampleMean, col = "3")
+```
+
+
+```{r, eval=FALSE}
+library(ggplot2)
+ lambdavals <- seq(0.02, 2, by = 0.01)
+ coverage <- sapply(lambdavals, function(lambda){
+ t <- rowMeans(matrix(rexp(n = nosim * 40,rate = lambda), nosim, n))
+ ll <- t - qnorm(0.975) * sqrt((t)^2/n)
+ ul <- t + qnorm(0.975) * sqrt((t)^2/n)
+ mean(ll < 1/lambda & ul > 1/lambda )
+ })
+ qplot(lambdavals, coverage) +
+ geom_hline(yintercept=0.95) +
+ ggtitle ("Covergage for a Range of Lambda Values") +
+ xlab("Lambda Values") + ylab("Coverage Percentage")
+```
+
 As you can see from the graph, the calculated distribution of means of random sampled exponantial distributions, overlaps quite nice with the normal distribution with the expected values based on the given lamba
