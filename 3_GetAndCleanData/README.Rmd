@@ -4,10 +4,6 @@ author: "Frank Fichtenmueller"
 
 ---
 
-
-
-$\pagebreak$
-
 ## Overview
 * finding and extracting raw data
 * today any how to make data tiny
@@ -17,7 +13,7 @@ $\pagebreak$
 
 - This document contains a short general overview of the topic (Annotated Coursenotes from Coursera Specialization)
 - The main folder contains **R syntax for the most common application scenarios **
-- In `./Packages-Syntax` i collected all relevant R packages and introduced the basic R code as syntax demonstration to implement the most important features
+- In `./Packages-Syntax` is the application ready codebase for the most common functions
 
 
 
