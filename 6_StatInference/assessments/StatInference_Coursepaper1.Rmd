@@ -1,0 +1,117 @@
+---
+title: "StatInference_Courseproject1"
+author: "Frank Fichtenmueller"
+date: "3 November 2016"
+output: pdf_document
+---
+
+```{r global_options, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.width=7, fig.height=4, warning=FALSE, message=FALSE)
+```
+
+# Statistical Inference Course Project 1
+
+## Overview
+The scope of this final Course Project is to investigate the exponential distribution in R from the perspective of the Central Limit Theorem. 
+From the Theorem follows, that a randomized redraw of sample distributions will construct a normalized distributiof over its mean. 
+To simulate an exponential distribution in R, i will make use of the rexp(n, lambda) function, where lambda is the rate parameter. I will set lambda = 0.2 for all of the simulations and document the distribution of averages of 40 different exponential settings. 
+The sample size is set to be 1000 draws per simulation.
+
+## Simulations
+
+```{r}
+# load neccesary libraries
+library(ggplot2)
+
+# set constants
+lambda <- 0.2 # lambda for rexp
+n <- 40 # number of exponetials
+nSumim <- 1000 # number of tests
+
+# set the seed 
+set.seed(45876235)
+
+# run the test resulting in n x nSumim matrix
+expDistr <- matrix(data=rexp(n * nSumim, lambda), nrow=nSumim)
+expDistrMean <- data.frame(means=apply(expDistr, 1, mean))
+```
+
+```{r echo=FALSE}
+# plot the means
+ggplot(data = expDistrMean, aes(x = means)) + 
+  geom_histogram(binwidth=0.1) +   
+  scale_x_continuous(breaks=round(seq(min(expDistrMean$means), max(expDistrMean$means), by=1)))
+```
+
+## Sample Mean versus Theoretical Mean
+
+The expected mean $\mu$ of a exponential distribution of rate $\lambda$ is 
+
+$\mu= \frac{1}{\lambda}$ 
+
+```{r}
+mu <- 1/lambda
+mu
+```
+
+Let $\bar X$ be the average sample mean of 1000 simulations of 40 randomly sampled exponential distributions.
+
+```{r}
+meanOfMeans <- mean(expDistrMean$means)
+meanOfMeans
+```
+
+As you can see the expected mean and the avarage sample mean are very close 
+
+
+## Sample variance versus Theoretical variance
+
+The expected standard deviation $\sigma$ of a exponential distribution of rate $\lambda$ is 
+
+$\sigma = \frac{1/\lambda}{\sqrt{n}}$ 
+
+The e
+
+```{r}
+sd <- 1/lambda/sqrt(n)
+sd
+```
+
+The variance $var$ of standard deviation $\sigma$ is
+
+$var = \sigma^2$ 
+
+```{r}
+var <- sd^2
+var
+```
+
+Let $var_x$ be the variance of the average sample mean of 1000 simulations of 40 randomly sampled exponential distribution, and $\sigma_x$ the corresponding standard deviation.
+```{r}
+sd_x <- sd(expDistrMean$means)
+sd_x
+
+var_x <- var(expDistrMean$means)
+var_x
+```
+
+As you can see the standard deviations are very close
+Since variance is the square of the standard deviations, minor differnces will we enhanced, but are still pretty close.
+
+## Distribution
+
+Comparing the population means & standard deviation with a normal distribution of the expected values. 
+
+```{r echo=FALSE}
+# plot the means
+ggplot(data = expDistrMean, aes(x = means)) + 
+  geom_histogram(binwidth=0.1, aes(y=..density..), alpha=0.2) + 
+  stat_function(fun = dnorm, args = list(mean = mu , sd = sd), colour = "red", size=1) + 
+  geom_vline(xintercept = mu, size=1, colour="#CC0000") + 
+  geom_density(colour="blue", size=1) +
+  geom_vline(xintercept = meanOfMeans, size=1, colour="#0000CC") + 
+  scale_x_continuous(breaks=seq(mu-3,mu+3,1), limits=c(mu-3,mu+3)) 
+```
+
+As you can see from the graph, the calculated distribution of means of random sampled exponantial distributions, overlaps quite nice with the normal distribution with the expected values based on the given lamba
