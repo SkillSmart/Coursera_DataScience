@@ -11,9 +11,8 @@ if(!require(lubridate)){install.packages("lubridate", dependencies = TRUE)}
 ## Basic Syntax for the Lubridate Package in R
 
 ### Parsing Date from multiple sourcetypes
+Given a string of different timerepresentations, we will explore all possibilities in the package to extract them into POSIX Datetime objects
 ```{r}
-# Given a string of different timerepresentations, we will explore all possibilities in the package to extract them into POSIX Datetime objects
-
 time_str <- list("1997/12/10", "01/01/1985", "21st January 1887", "01-31-1900", "March 12 87", "19900112")
 
 # We can transform them, giving the order of year, month, day
@@ -69,8 +68,22 @@ time_str_Pos <- parse_date_time(time_str, orders)
 ## First collect them in a list
 time_str.tzs <- c("Europe/Vienna", "USA/New York", "Australia/Sydney", "Asia/New Delhi", "Europe/Moskow", "Asia/Peking")
 ## Then assign them onto the timeobject
-sapply(time_str_Pos, tz(time_str.tzs))
+
+
+# Set a Timezone as current TZ
+Sys.setenv(tz = "Europe/Vienna")
+tz(now())
+now()
 ```
+
+Quickly transform a timezone object into a different timezone
+
+```{r}
+tstamp <- now()
+with_tz(tstamp, "Europe/London")
+with_tz(tstamp, "Asia/Tokyo")
+```
+
 
 ### Transforming multiple Timezone DateTime Objects into a localzone representation
 ```{r}
@@ -103,6 +116,7 @@ tz(dtime_Oakland) <- "Pacific/Auckland"
 tz(dtime_NewYork) <- 
 dtime_Oakland
 Sys.timezone()
+now()
 
 ```
 
@@ -266,5 +280,61 @@ quarter(now(), with_year = TRUE)
 
 # Get the semester
 semester(now(), with_year = TRUE)
+```
+
+When measuring the duration of a given period we can use the `interval()` function from lubridate
+```{r}
+# First create a interval object
+int <- interval(now(), dmy("11/09/1982"))
+
+# Then get the duration values from it
+time_length(int,unit = "years")
+```
+
+
+
+### Additional transformations on DateTime Objects
+```{r}
+# Rounding timestamps
+round_date(now(), 'minutes')
+round_date(now(), 'hours')
+round_date(now(), 'weeks')
+round_date(now(), 'day')
+
+# Rounding down using floor_date
+floor_date(now(), 'hours')
+floor_date(now(), 'days')
+
+# Rounding up using ceiling_date
+ceiling_date(now(), 'hours')
+ceiling_date(now(), 'weeks')
+
+```
+
+#### Unconventional period values include:
+
+- `bimonth`
+- `quarter`
+- `halyear`
+- `year`
+
+
+### Assigning TimeStams
+
+These functions enable a quick and human friendly annotation with timeinformation.
+```{r}
+D <- ymd("2010-04-05") - days(1:5)
+stamp("March 1, 1999")(D)
+sf <- stamp("Created on Sunday, Jan 1, 1999 3:34 pm")
+sf(D)
+stamp("Jan 01")(D)
+stamp("Sunday, May 1, 2000", locale = "en_US")(D)
+stamp("Sun Aug 5")(D) #=> "Sun Aug 04" "Sat Aug 04" "Fri Aug 04" "Thu Aug 04" "Wed Aug 03"
+stamp("12/31/99")(D) #=> "06/09/11"
+stamp("Sunday, May 1, 2000 22:10", locale = "en_US")(D)
+stamp("2013-01-01T06:00:00Z")(D)
+stamp("2013-01-01T00:00:00-06")(D)
+stamp("2013-01-01T00:00:00-08:00")(force_tz(D, "America/Chicago"))
+
 ```
 

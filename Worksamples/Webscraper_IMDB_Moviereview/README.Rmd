@@ -1,0 +1,50 @@
+---
+title: "rvest - Codeexample"
+output: html_notebook
+---
+
+## Implementing a live Movie Rating Scraper from IMDB Ratings of the current toprated Movies on social Media
+
+This project aims to gradually work towards implementing a live Movie Database Scraper based on the following content providers
+
+Questions to be adressed trough analysis:
+
+- 
+
+
+
+Datsources to be integrated:
+
+- IMBD online Movie Database
+  - Movie related Information
+    - Title of Movie
+    - Release Date of Movie
+    - Cast
+      - Actor/ (Associated Figure)
+    - Producer
+    - Directors
+    - Writers
+    - Storyline
+    - Synonyms(Title)
+    - Language
+    - BoxOffice_Opening
+    - BoxOffice_Weekend
+    - BoxOffice_Gross
+  
+  - Production Related
+    - Runtime(min)
+    - ProductionComp
+    
+
+  - Critics Reviews
+    - Nominations
+    - Metascore Critics Rating
+    - Number of Critics Reviews
+    - MPAA Rating
+    
+  - Public Reviews
+    - Metascore Critics Rating
+    - Number of Reviews(Public)
+    - Number of Reviews(Critics)
+    - Popularity Metrics
+

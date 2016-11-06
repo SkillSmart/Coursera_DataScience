@@ -1,0 +1,195 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Outline of the Websraper for the "IMDB Moviedatabase" 
+
+Summary:
+
+
+Packages applied:
+- `rvest`
+
+
+
+### Setting up the Data Frame "movie" to act as a temporary replacement for a Database
+```{r}
+require(dplyr)
+movie <- data.frame(
+          "ID" = character(),    #Will be set to the  ID string from the IMDb html adress
+          "title" = character() ,
+          "synomys_title" = character(), 
+          "year" = numeric(),
+          "dat_release" = as.Date(character()),
+          "runtime_min" = numeric(),
+          "directors" = character(), 
+          "writer" = character(),
+          "language" = factor(), 
+          "box_opening" = numeric(), 
+          "box_weekend" = numeric(), 
+          "box_gross" = numeric(), 
+          stringsAsFactors = FALSE)
+```
+
+```{r}
+str(movie)
+```
+
+### Setting up a Date.Frame to hold the review information for a certain movie
+```{r}
+movie_review <- data.frame(
+  ""
+)
+```
+
+Movie related Information
+    - Title of Movie
+    - Release Date of Movie
+    - Cast
+      - Actor/ (Associated Figure)
+    - Producer
+    - Directors
+    - Writers
+    - Storyline
+    - Synonyms(Title)
+    - Language
+    - BoxOffice_Opening
+    - BoxOffice_Weekend
+    - BoxOffice_Gross
+  
+  - Production Related
+    - Runtime(min)
+    - ProductionComp
+    
+
+  - Critics Reviews
+    - Nominations
+    - Metascore Critics Rating
+    - Number of Critics Reviews
+    - MPAA Rating
+    
+  - Public Reviews
+    - Metascore Critics Rating
+    - Number of Reviews(Public)
+    - Number of Reviews(Critics)
+    - Popularity Metrics
+    - Summary Rating Statistics
+      - Rated(male)
+      - Rated(female)
+      - Rated(< 18 & male)
+      - Rated(18 & female)
+      - Rated(18 - 29)
+      - etc.... 
+
+### CodeExample - Scraping Movie Rateings on IMDB
+```{r}
+# Scraping movie reviews from IMDB
+
+# Collecting the source data
+movie_html <- read_html("http://www.imdb.com/title/tt1490017/")
+names(movie_html)
+```
+```{r}
+# Scrape the movie review
+avg_review <- movie_html %>% 
+      html_node ("strong span") %>% 
+      html_text() %>% 
+      as.numeric()
+
+# Scrape the cast
+movie_cast <- movie_html %>%
+  html_nodes("#titleCast .itemprop span") %>% 
+  html_text()
+
+# Get recent message board postings on this movie for 3 classes of review(loved, hated, bestvoted reviews)
+review_best <- read_html("http://www.imdb.com/title/tt1490017/reviews?ref_=tt_urv")
+review_loved <- read_html("http://www.imdb.com/title/tt1490017/reviews?filter=love")
+review_hated <- read_html("http://www.imdb.com/title/tt1490017/reviews?filter=hate")
+
+review_conc <-  list(review_best, review_loved, review_hated)
+
+# For each review class gather the following information
+
+# Parse out and then clean the rater names
+rater_name <- review_best %>% 
+  html_nodes("#tn15content div a") %>% 
+  html_text()
+rater_name <- rater_name[grep('.+', rater_name)]
+  
+# Parse out and then clean the rater_origin
+rater_origin <- review_best %>% 
+  html_nodes("small:nth-child(9)") %>% 
+  html_text()
+
+# Try advanced rater origin 
+rater_origin_adv <- review_best %>% 
+  html_nodes("small:nth-child(9) :nth-child(9) :nth-child(9) , small:nth-child(9), #tn15content div a") %>% 
+  html_text()
+rater_origin_adv[3]
+
+rater_name <- rater_origin_adv[seq(2,length(rater_origin_adv), 3)]
+rater_origin <- rater_origin_adv[seq(3,length(rater_origin_adv),3)]
+data.frame(rater_name, rater_origin)
+rater_origin
+
+
+
+
+
+review_date <- review_best %>% 
+  html_nodes("small:nth-child(10) , small:nth-child(11)") %>% 
+  html_text()
+
+review_date
+review_class <- 
+
+review_content <- review_best %>% 
+  html_nodes("p:nth-child(46) , :nth-child(42), :nth-child(38), :nth-child(34), :nth-child(30), :nth-child(26), :nth-child(22), :nth-child(18), :nth-child(14), p:nth-child(10)") %>% 
+  html_text()
+
+review_content[grepl('[.+{10,}]+', review_content)]
+review_title <- 
+review_usefullnes <- 
+
+
+```
+### Collect the summary statistics on the movie Rating behaviour and clean it
+```{r}
+# Select the source and download html code
+review_summary <- read_html("http://www.imdb.com/title/tt1490017/ratings?ref_=tt_ov_rt")
+
+# Parse the data and select the relevant information
+review_stats <- review_summary %>% 
+  html_nodes("table:nth-child(11)") %>% 
+  html_table(fill = TRUE)
+
+# Parse the demographic breakdown for the rating behaviour
+demog_stats <- review_summary %>% 
+  html_nodes("table:nth-child(6) td") %>% 
+  html_text()
+
+dim (demog_stats) <- c(3)
+
+# breakdown demog_stats
+require(Hmisc)
+rbind(demog_stats[1:3], demog_stats[4:6], demog_stats[7:9], demog_stats[10:12])
+length(demog_stats)
+split(, ceiling(seq_along(d)/20))
+chunk2 <- function(x,n) split(x, cut(seq_along(x), n, labels = FALSE)) 
+chunk2(demog_stas)
+```
+
+Create dataframe
+```{r}
+length(rater_name[grep(pattern = ".+", rater_name)])
+
+data.frame(rater_name, rater_origin, review_date)
+```
+
+
+Summarize function
+```{r}
+print(avg_review)
+print(movie_cast)
+seq(1,10,2)

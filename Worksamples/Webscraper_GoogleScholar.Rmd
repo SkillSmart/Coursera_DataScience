@@ -1,0 +1,102 @@
+---
+title: "WebScraper for Google scholar with rvest"
+output: html_notebook
+---
+
+## Example Application of rvest scraping to Scholar Search on Google scholar
+
+Summary:
+
+
+Scope of the scraping:
+Given the name of a person, the system shall return:
+
+- Research Affiliation of the Person
+- Articles written by the person
+- Number of Citations
+- Coauthors to the articles
+- Affiliation of coauthors
+- Number of papers published (Grouped by research area)
+- 
+
+Packages applied:
+
+- rvest
+
+#### Loading required libraries
+```{r}
+require(rvest)
+require(ggplot2)
+```
+
+#Return google scholar page for the Person searched
+```{r}
+source_html <- read_html("https://scholar.google.com/citations?user=sTR9SIQAAAAJ&hl=en&oi=ao")
+source_html_enh <- read_html("https://scholar.google.com/citations?user=sTR9SIQAAAAJ&hl=en&oi=ao")
+
+```
+
+
+# How many citations does the person have
+```{r}
+citation <- source_html %>% 
+  html_nodes("gsc_a_b .gsc_a_c") %>% 
+  html_text() %>% as.numeric()
+
+citation
+```
+
+```{r}
+citation <- source_html %>% 
+  html_nodes(".gsc_a_ac") %>% 
+  html_text() %>% as.numeric()
+
+articles <- source_html %>% 
+  html_nodes(".gsc_a_at") %>% 
+  html_text()
+
+coauthors <- source_html %>% 
+  html_nodes(".gs_gray:nth-child(2)") %>% 
+  html_text()
+
+# Second implementation
+  page <- read_html("https://scholar.google.com/citations?view_op=list_colleagues&hl=en&user=sTR9SIQAAAAJ")
+  Coauthors = page%>% html_nodes(css=".gsc_1usr_name a") %>% html_text()
+  Coauthors = as.data.frame(Coauthors)
+  names(Coauthors)='Coauthors'
+
+journal <- source_html %>% 
+  html_nodes(".gs_gray:nth-child(3)") %>% 
+  html_text()
+
+year <- source_html %>% 
+  html_nodes("#gsc_a_b .gsc_a_h") %>% 
+  html_text() %>% as.numeric()
+
+```
+
+```{r}
+# Creating the dataframe 
+df <- data.frame("article" = articles, 
+                 "coauthors" = coauthors,
+                 "journal" = journal, 
+                 "citations" = citation,
+                 "year" = year,
+                 stringsAsFactors = FALSE)
+str(df)
+head(df, 40)
+```
+
+
+#### Create Visualizations for dashboard context
+```{r}
+barplot(df$citations, main="Citations per Paper", ylab="Number of citations", col="blue", xlab="")
+```
+### Total Citations by year
+```{r}
+df %>% 
+  group_by(year) %>% 
+  summarise(total_citation = sum(citations)) %>% 
+  plot()
+```
+

@@ -1,0 +1,13 @@
+---
+title: "ExplDA_SYN_plotly"
+author: "Frank Fichtenmueller"
+date: "3 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Basic Syntax for ggplot2
+[Plotly Reference](https://plot.ly/r/)
