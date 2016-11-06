@@ -1,0 +1,270 @@
+---
+title: "lubridate - Basic Syntax"
+output: html_notebook
+---
+
+
+```{r}
+if(!require(lubridate)){install.packages("lubridate", dependencies = TRUE)}
+```
+
+## Basic Syntax for the Lubridate Package in R
+
+### Parsing Date from multiple sourcetypes
+```{r}
+# Given a string of different timerepresentations, we will explore all possibilities in the package to extract them into POSIX Datetime objects
+
+time_str <- list("1997/12/10", "01/01/1985", "21st January 1887", "01-31-1900", "March 12 87", "19900112")
+
+# We can transform them, giving the order of year, month, day
+ymd(time_str[1])
+dmy(time_str[2])
+dmy(time_str[3])
+mdy(time_str[4])
+mdy(time_str[5])
+ydm(time_str[6])
+```
+
+### Parsing DateTime Objects:
+```{r}
+dtime_str <- list("12011900:18:00:34", "12/01/86:03:45 am","12-1-86:03:45am") 
+
+# converting both Date and Time information from the list
+mdy_hms(dtime_str)
+mdy_hm(dtime_str[2])
+mdy_hm(dtime_str[3])
+```
+
+### Using the `pase_date_time()` function
+
+parse_date_time parses an input vector into POSIXct date-time object. It differs from strptime
+in two respects. First, it allows specification of the order in which the formats occur without the
+need to include separators and "%" prefix. Such a formating argument is refered to as "order". Second,
+it allows the user to specify several format-orders to handle heterogeneous dat-time character represantions.
+
+```{r}
+# First get the information on the date-time representations of your data
+str(time_str)
+```
+
+When working with such a lot of many different representations in a single dataset, its easier to pass them all as attributes.
+```{r}
+# Set the char representations 
+orders <- c("ymd", "mdy", "dmy", "dmy", "mdy", "ydm")
+
+
+# Call the parse_date_time() with the orders attributes
+parse_date_time(time_str, orders = orders)
+```
+
+The Timezone can be automatically set, given the indivual customized standard of your system. Or you assign them.
+```{r}
+# Setting a new standard timezone to be applied to all DateTime Objects
+parse_date_time(time_str, orders, tz="Europe/Vienna")
+parse_date_time(time_str, orders, tz="Australia/Brisbane")
+
+# Setting individual timezones for all entries
+time_str_Pos <- parse_date_time(time_str, orders)
+
+## First collect them in a list
+time_str.tzs <- c("Europe/Vienna", "USA/New York", "Australia/Sydney", "Asia/New Delhi", "Europe/Moskow", "Asia/Peking")
+## Then assign them onto the timeobject
+sapply(time_str_Pos, tz(time_str.tzs))
+```
+
+### Transforming multiple Timezone DateTime Objects into a localzone representation
+```{r}
+require(lubridate)
+require(dplyr)
+
+df = data.frame(timestring = c("2015-12-12 13:34:56", "2015-12-14 16:23:32"),
+                localzone = c("America/Los_Angeles", "America/New_York"), stringsAsFactors = F)
+
+df$moment = as.POSIXct(df$timestring, format="%Y-%m-%d %H:%M:%S", tz="UTC")
+
+df = df %>% rowwise() %>% mutate(localtime = force_tz(moment, localzone))
+
+df
+```
+
+
+### Importing DateTime Objects from multiple Timezones into a coherent representation
+
+```{r}
+# Given this information
+dtime_Oakland <- list("12/04/2016 4:35pm")
+dtime_NewYork <- list("04-03-16 12:45am")
+dtime_Munich <- list("01.09.2016 16:45")
+
+# First we transform the lists into DateTime object
+dtime_Oakland <- mdy_hm(dtime_Oakland)
+# We then have to add the local timezone information
+tz(dtime_Oakland) <- "Pacific/Auckland"
+tz(dtime_NewYork) <- 
+dtime_Oakland
+Sys.timezone()
+
+```
+
+
+### Calculating Periods
+```{r}
+# Getting a current Timestamp
+t_stamp <- now()
+
+# Adding a given Timeperiod
+next_stamp <- t_stamp + hours(3)
+
+# Calculating time Difference
+time_diff <- next_stamp - t_stamp
+time_diff
+```
+
+
+This creates an object of class `difftime`, that has special attributes associated to allow advanced Calulations on TimeDifferences
+```{r}
+class(time_diff)
+attributes(time_diff)
+```
+We can directly alter
+```{r}
+time_diff
+```
+
+#### Creating Periods 
+
+period creates a period object with the specified values. period provides the behaviour of period
+in a way that is more suitable for automating within a function
+
+```{r}
+# Creating a period given the num of units, and the units to be used
+period(360, units="minutes")
+
+# You can pass the following argument as unigs
+units <- c('seconds', 'minutes', 'hours', 'days', 'weeks', 'months', 'years')
+
+for(unit in  units){
+  print(sprintf("Using unit '%s' we get a period of value of %s :", unit, period(30, unit)))
+}
+```
+
+Within a Period object, time units do not have a fixed length (except for seconds) until they are
+added to a date-time. The length of each time unit will depend on the date-time to which it is added.
+For example, a year that begins on 2009-01-01 will be 365 days long. 
+A year that begins on 2012-
+01-01 will be 366 days long. When math is performed with a period object, each unit is applied
+separately. How the length of a period is distributed among its units is non-trivial. For example,
+when leap seconds occur 1 minute is longer than 60 seconds.
+Periods track the change in the "clock time" between two date-times. They are measured in common
+time related units: years, months, day
+
+```{r}
+t_timestamp <- now()
+p_30 <- period(30)
+
+# Adding different periods to the current time
+values <-  c("second", "minute", "hour", "day", "week", "month", "year")
+
+for(value in values){
+  print(sprintf("Adding 30 %s to the current time gives us: %s", value, (t_timestamp + period(30, units=value))))
+}
+```
+
+Periods can be assigned without value. Then they get their value from the timestamp they are assigned to
+```{r}
+timestamps <- list(second(now()), minute(now()), hour(now()), day(now()), year(now()))
+for(unit in timestamps){
+  print(unit + p_30)
+}
+```
+
+### Setting different periods
+```{r}
+period(0, 'seconds')
+period(secons=12, minutes=5, hour=10)
+period(c(1,-60), c('hour', 'minute'))
+now() + period(c(1,-60), c('hour', 'minute')) 
+
+# Using shorthand notation
+period("2d 2H 2M 2S")
+period("2mins 4days 6hours")
+period("2min 4d 24h")
+
+# Blank values default to 1
+period("sec min day")
+
+# Repeated units get added up
+period("day day minute 10min")
+```
+### Setting quick `durations()` to manipulate date-time objects
+```{r}
+t_stamp <- now()
+
+# Move the time forward by a given amount
+t_stamp + dseconds(40)
+t_stamp + dminutes(65)
+t_stamp + dhours(2.5)
+t_stamp + ddays(0.3)
+t_stamp + dweeks(2)
+t_stamp + dyears(1.2)
+
+## Using very small durations with
+m_stamp <- dmicroseconds(10)
+m_stamp + dmicroseconds(100)
+m_stamp + dmilliseconds(10)
+m_stamp + dnanoseconds(1)
+m_stamp + dpicoseconds(1)
+
+# All duration objects can be added or subtracted
+now() + ddays(10) - dhours(5)
+```
+
+### Calling quick period objects for quick datamanipulation
+
+```{r}
+days(5)
+class(days(5))
+
+# Available period objects for all types
+days(1)
+minutes(10)
+hours(4)
+seconds(10)
+weeks(2)
+months(5)
+years(2)
+#etc...
+```
+
+### Working with the `period class` in lubridate
+
+Period is an S4 class that extends the Timespan-class class. Periods track the change in the "clock
+time" between two date-times. They are measured in common time related units: years, months,
+days, hours, minutes, and seconds. Each unit except for seconds must be expressed in integer values.
+
+```{r}
+
+```
+
+
+The exact length of a period is not defined until the period is placed at a specific moment of time.
+This is because the precise length of one year, month, day, etc. can change depending on when it
+occurs due to daylight savings, leap years, and other conventions. A period can be associated with
+a specific moment in time by coercing it to an Interval-class object with as.interval or by
+adding it to a date-time with "+".
+Periods provide a method for measuring generalized timespans when we wish to model clock times.
+Periods will attain intuitive results at this task even when leap years, leap seconds, gregorian days,
+daylight savings changes, and other events happen during the period. See Duration-class for an
+alternative way to measure timespans that allows precise comparisons between timespans
+
+
+### Working with specific time periods
+
+```{r}
+# Get the quarter dates for a given timestamp
+quarter(now(), with_year = TRUE)
+
+# Get the semester
+semester(now(), with_year = TRUE)
+```
+

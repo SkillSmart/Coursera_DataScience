@@ -1,0 +1,13 @@
+---
+title: "LubridatePackage_README"
+author: "Frank Fichtenmueller"
+date: "6 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Tidyverse based Work applications to DateTime Objects in R - The "lubridate Package"
+
