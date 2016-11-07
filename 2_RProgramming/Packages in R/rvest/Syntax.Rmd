@@ -1,0 +1,271 @@
+---
+title: "Web Scraping with the rvest package"
+output: html_notebook
+---
+
+## Introduction to the Basic Functionality in rvest
+
+rvest is new package that makes it easy to scrape (or harvest) data from html web pages, by libraries like beautiful soup. It is designed to work with magrittr 
+so that you can express complex operations as elegant pipelines composed of simple, easily understood pieces
+
+```{r}
+if(!require(rvest)){install.packages("rvest", dependencies=TRUE)}
+```
+
+### Basic Workflow in rvest
+
+- Identify the websource you want to scrape information from
+- use a html plugin like `selectorgadget` to identify the elements from which to parse the information in the html code
+- open the connection to the websource and read the data into a R object
+- use `html_node` to parse the selector object from the html sourcescode
+- extract vectorized information from the contend with: 
+    - `html_text()` for textual content of the selector
+    - `html_attribute()` for a single attribute
+    - `html_attributes()` for all attributes
+
+- convert tabular information from a webpage as a data.frame with `html_table()`
+```{r}
+demo(package="rvest",topic = "united")
+```
+
+Example Workflow
+```{r}
+data <- read_html("")
+data %>% html_node() %>% 
+  html_text() %>% as.numeric()
+```
+
+###`enconding()` to fix broken language encodings in html documents
+
+Guess and repair faulty enconding on a webpage
+`guess_enconding()` to figure out the encoding and `repair_encoding()` to fix character vectors.
+This wraps around the `stringi package`
+
+
+Example Code:
+```{r}
+# A file with bad enconding
+path <- system.file("html-ex", "bad-encoding.html", package="rvest")
+x <- read_html(path)
+print(x)
+```
+
+```{r}
+ x %>% html_nodes("p") %>% html_text()
+```
+guess encoding
+```{r}
+guess_encoding(x)
+```
+try the best responses
+```{r}
+encodings <- guess_encoding(x)$encoding
+results = list()
+for(i in encodings[1:3]){
+  results <- c(results, read_html(path, encoding = i) %>% html_nodes("p") %>% html_text())
+}
+names(results) <- encodings[1:3]
+results
+```
+
+
+### Working with `google_form()` to link to google form given ID
+
+# TODO:  ???? Not sure yet what to use this for...
+
+Example
+```{r}
+google_form("1M9B8DsYNFyDjpwSK6ur_bZf8Rv_04ma3rmaaBiveoUI")
+```
+
+
+### `read_html()` to parse a document
+
+Reading from a url:
+```{r}
+google <- read_html("http://google.com", encoding = "ISO-8859-1")
+google %>% xml_structure()
+google %>% html_nodes("div")
+
+```
+
+Reading from a string
+```{r}
+minimal <- read_html("<!doctype html>
+<meta charset=utf-8>
+<title>blah</title>
+<p>I'm the content")
+minimal
+minimal %>% xml_structure()
+```
+
+Reading from an httr request
+```{r}
+google2 <- read_html(httr::GET("http://google.com"))
+google2
+```
+
+
+### Parse Forms in a document with `html_form()`
+
+Examples:
+```{r}
+box_office <- read_html("http://www.boxofficemojo.com/movies/?id=ateam.htm")
+box_office %>% html_node("form") %>% html_form()
+```
+
+
+### Parse Tables with `html_table()` into DataFrames
+
+arguments:
+
+- `x` - A node, node set or document.
+- `header` - Use first row as header? If NA, will use first row if it consists of <th> tags.
+- `trim` - Remove leading and trailing whitespace within each cell?
+- `fill` - If TRUE, automatically fill rows with fewer than the maximum number of columns
+with NAs.
+- `dec` - The character used as decimal mark
+
+Assumptions:
+
+html_table currently makes a few assumptions:
+- No cells span multiple rows
+- Headers are in the first row
+
+Example
+```{r}
+tdist <- read_html("http://en.wikipedia.org/wiki/Student%27s_t-distribution")
+
+tdist %>%
+html_node("table.infobox") %>%
+html_table(header = FALSE)
+births <- read_html("https://www.ssa.gov/oact/babynames/numberUSbirths.html")
+html_table(html_nodes(births, "table")[[2]])
+
+
+# If the table is badly formed, and has different number of rows in
+# each column use fill = TRUE. Here's it's due to incorrect colspan
+# specification.
+skiing <- read_html("http://data.fis-ski.com/dynamic/results.html?sector=CC&raceid=22395")
+skiing %>%
+html_table(fill = TRUE)
+```
+
+
+
+### Select nodes in an html document with `html_nodes()`
+More easily extract pieces out of HTML documents using XPath and css selectors. CSS selectors
+are particularly useful in conjunction with http://selectorgadget.com/: it makes it easy to find
+exactly which selector you should be using. If you have’t used css selectors before, work your way
+through the fun tutorial at http://flukeout.github.io/
+
+- Pseudo selectors that require interactivity are ignored: :hover, :active, :focus, :target,
+:visited
+- The following pseudo classes don’t work with the wild card element, \*: *:first-of-type,
+\*:last-of-type, \*:nth-of-type, \*:nth-last-of-type, *:only-of-type
+- It supports :contains(text)
+- You can use !=, [foo!=bar] is the same as :not([foo=bar])
+- :not() accepts a sequence of simple selectors, not just single simple selector.
+
+Examples:
+```{r}
+# CSS selectors ----------------------------------------------
+ateam <- read_html("http://www.boxofficemojo.com/movies/?id=ateam.htm")
+html_nodes(ateam, "center")
+html_nodes(ateam, "center font")
+html_nodes(ateam, "center font b")
+
+# But html_node is best used in conjunction with %>% from magrittr
+# You can chain subsetting:
+ateam %>% html_nodes("center") %>% html_nodes("td")
+ateam %>% html_nodes("center") %>% html_nodes("font")
+td <- ateam %>% html_nodes("center") %>% html_nodes("td")
+
+
+# When applied to a list of nodes, html_nodes() returns all nodes,
+# collapsing results into a new nodelist.
+td %>% html_nodes("font")
+
+
+# html_node() returns the first matching node. If there are no matching
+# nodes, it returns a "missing" node
+if (utils::packageVersion("xml2") > "0.1.2") {
+td %>% html_node("font")
+}
+
+# To pick out an element at specified position, use magrittr::extract2
+# which is an alias for [[
+library(magrittr)
+ateam %>% html_nodes("table") %>% extract2(1) %>% html_nodes("img")
+ateam %>% html_nodes("table") %>% `[[`(1) %>% html_nodes("img")
+
+
+# Find all images contained in the first two tables
+ateam %>% html_nodes("table") %>% `[`(1:2) %>% html_nodes("img")
+ateam %>% html_nodes("table") %>% extract(1:2) %>% html_nodes("img")
+
+
+# XPath selectors ---------------------------------------------
+# chaining with XPath is a little trickier - you may need to vary
+# the prefix you're using - // always selects from the root noot
+# regardless of where you currently are in the doc
+ateam %>%
+html_nodes(xpath = "//center//font//b") %>%
+html_nodes(xpath = "//b")
+
+```
+
+### Extract attributes, text and tag name from html codefiles
+
+To finally turn the information we derived from the nodes in the document into their final representation, we can use 
+the following function. 
+
+- `htm_text(x)`
+- `html_name(x)`
+- `html_children()`
+- `html_attrs(x)`
+- `html_attr(x)`
+
+arguments:
+
+- `x` - A document, node, or node set.
+- `trim` - If TRUE will trim leading and trailing spaces.
+- `name` - Name of attribute to retrieve.
+- `default` - A string used as a default value when the attribute does not exist in every node
+
+
+Examples:
+```{r}
+movie <- read_html("http://www.imdb.com/title/tt1490017/")
+cast <- html_nodes(movie, "#titleCast span.itemprop")
+html_text(cast)
+
+```
+
+
+### Simulate a browsing session  with `html_session()`
+
+arguments:
+
+- `url` - Place to start
+- `...` - additional httr config to use troughout session
+- `x` - an object to test to see if its a session
+
+
+A session object responds to a combination of httr and html methods: 
+- use `cookies()`, 
+- `headers()`,
+- and `status_code()` to access properties of the request; 
+- and `html_nodes` to access the html.
+
+
+```{r}
+# http://stackoverflow.com/questions/15853204
+s <- html_session("http://hadley.nz")
+s %>% jump_to("hadley-wickham.jpg") %>% jump_to("/") %>% session_history()
+s %>% jump_to("hadley-wickham.jpg") %>% back() %>% session_history()
+s %>% follow_link(css = "p a")
+
+```
+
+### Follow a link using `jump_to()`

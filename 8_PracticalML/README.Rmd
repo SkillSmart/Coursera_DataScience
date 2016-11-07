@@ -1,19 +1,21 @@
 ---
-title: "Practical Machine Learning Course Notes"
-author: "Xing Su"
-output:
-  pdf_document:
-    toc: yes
-    toc_depth: 3
-  html_document:
-    highlight: pygments
-    theme: spacelab
-    toc: yes
-header-includes: \usepackage{graphicx} \usepackage{mathtools}
+title: "PracticalMachineLearning in R"
+author: "Frank Fichtenmueller"
+date: "7 November 2016"
+output: html_notebook
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-$\pagebreak$
+## This Project documents practical ML Applications using R built ins and additional packages
+
+Courses on the topic: | Usefull Booklinks | best practice|
+---------------------------------------------------------
+-  In depth course on ML |                |              |
+
+
 
 
 ## Prediction
