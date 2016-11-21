@@ -1,0 +1,77 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+ to preview the HTML file).
+```{r}
+if(!require(httr)){install.packages("HTTR")}
+library(httr)
+```
+
+```{r}
+ r <- GET(url = "http://google.com")
+
+# Checking the status code of the request
+r$status_code
+
+# Check for final completion
+r$status_code == "200"
+
+# Check fof status
+warn_for_status(r)
+
+# stop_for_status
+stop_for_status(r)
+
+# getting the http_status
+http_status(r)
+```
+
+### Headers
+```{r}
+# Returns a named list of all the headers in the Request
+headers(r)
+
+# Server header
+headers(r)$server
+```
+
+### Body of the request
+```{r}
+r$content
+```
+
+### Extract the raw bites back into data
+```{r}
+head(content(r, "raw"),10)
+
+head(content(r, "text"), 10)
+
+content(r, "parse")
+```
+
+## Applying this do collect information from omdbapi.com
+```{r}
+# We send our requests for the Movie "Frozen"
+
+# We set the request url to the movie at t=XXX, the year of the movie to y=XXX, display short plot summary with plot=XXX and request r=json, for json format return
+url <- "http://www.omdbapi.com/?t=Frozen&y=2016&plot=short&r=json"
+
+# we load the url
+frozen <- GET(url)
+
+# Parse out the information
+details <- content(frozen, "parse")
+
+details
+```
+```{r}
+require(dplyr)
+# Retrieve the movies year
+details$Year
+
+# as data frame
+as_data_frame(details)
+```
+

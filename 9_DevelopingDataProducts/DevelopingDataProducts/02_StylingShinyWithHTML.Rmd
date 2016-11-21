@@ -1,0 +1,481 @@
+---
+title: "Shiny with HTML and CSS"
+output: html_notebook
+---
+```{r}
+require(shiny)
+```
+
+## Using the `tags` to write the input to the shiny app
+
+```{r}
+# fluidPage writes an initial #body div to the page
+ui <- fluidPage(
+        
+        # We can use nested #row divs to nest the content we want to put in a subset
+        fluidRow(
+                # Use the `tags$` to select the tags we want to use
+                h2("This is an h2 header"),
+                p("This text is displayed as a paragraph, followed with a ", a("link", href="http://google.com"))
+        ),
+        
+        # Now we add a second row element to display
+        fluidRow(
+                h2("The second Header in a new row"),
+                p("This is my new row.", br(),"it contains a break, and another", a("link", href="google.com"))
+        ),
+        
+        # Creating the footer
+        fluidRow(
+                tags$footer(
+                        h2("This is the footer")
+                )
+        )
+)
+
+server <- function(input, output){
+        
+}
+
+shinyApp(ui, server)
+
+```
+
+```{r}
+f1 <- function(inside, out){print("1")}
+f2 <- function(inside, out){print("2")}
+f3 <- function(inside, out){print("3")}
+f4 <- function(inside, out){print("4")}
+f5 <- function(inside, out){print("5")}
+
+# Creating a list of functions
+functions <- list(f1, f2, f3, f4)
+
+# Calling the functions
+functions[[1]]()
+functions[[2]]()
+```
+### Creating a layout
+
+placing all elements passed on x and y dimensions.
+We can stack element using the z dimension. 
+
+These fucntion are just there to space the elements in a layout. These are built on top of 
+googles `bootstrap` html library. 
+
+PERFECT!!!!
+
+- `fluidRow`    : Adds rows to the body of the html
+- `column`      : Adds the elements in a column as a subset of the 
+
+
+The `column` takes the same arguments as in bootstrap:
+
+- the width and the offset for each column out of 12
+
+```{r}
+# An example code here:
+ui <- fluidPage(
+        
+        # Specify a header row
+        titlePanel("SMART Recruiting"),
+        
+        # Set the header row
+        fluidRow(
+                # Creat the logo div
+                tags$div(class = "logo", "Logo placeholder"),
+                
+                # Create the subtitle div
+                tags$div(class = "subtitle", "Finding the right people now")
+                ),
+        
+        
+        # Specify a row to be separated into three columns 
+        fluidRow(
+                column(3,
+                       # This part describes the content of the column
+                       h4("This is the column header"),
+                       p("This text goes in the column body")
+                       
+                       ),
+                column(6,
+                       # This part describes the content of the column
+                       h4("This is the column header"),
+                       p("This text goes in the column body")
+                       ),
+                column(3,
+                       # This part describes the content of the column
+                       h4("This is the column header"),
+                       p("This text goes in the column body")
+                       )
+                ),
+        
+        # Set a column element to be offset all the way to the right
+        fluidRow(
+                column(4, offset = 8)
+        )
+)
+
+server <- function(input, output){}
+
+shinyApp(ui, server)
+```
+
+
+Working with the `navbar page` layout in Shiny
+
+- use `navBar
+- use the `navbarMenu` to create dropdown menue
+```{r}
+ui <- navbarPage(title="SMART Recruiting", 
+                 
+                 # First page
+                 tabPanel("tab1", 
+                          fluidRow(
+                                  column(3,
+                                         # Content of column 1
+                                         tags$article(
+                                                h2("header column 1"),
+                                                p("The content for the article 1")
+                                         )),
+                                  column(3,
+                                         tags$article(
+                                                h2("header column 1"),
+                                                p("The content for the article 1")
+                                                )),
+                                  column(3,
+                                         tags$article(
+                                                h2("header column 1"),
+                                                p("The content for the article 1")
+                                                )),
+                                  column(3,
+                                         tags$article(
+                                                h2("header column 1"),
+                                                p("The content for the article 1")
+                                                ))
+                          )), 
+                 
+                 # Second page
+                 navbarMenu(title = "tab2", 
+                          tabPanel("Subtab1", 
+                                   "content"),
+                          
+                          tabPanel("Subtab2",
+                                   "content"),
+                          tabPanel("Subtab3",
+                                   "content")
+                          ), 
+                 
+                 # Third page
+                 tabPanel("tab3", 
+                          "contents"
+                          )
+                   
+                   )
+
+server <- function(input, output){}
+
+shinyApp(ui, server)
+```
+
+
+
+
+## Working with the `dashboardPage()` layout:
+
+This layout comes with a extra package, available from the package `shinydashboard`
+```{r}
+require(shiny)
+require(shinydashboard)
+
+
+ui <- dashboardPage(skin = "yellow",
+        
+        # Create header
+        dashboardHeader(title="SMART Recruiting",
+                        dropdownMenu(type = "messages",
+                                          messageItem(
+                                            from = "Sales Dept",
+                                            message = "Sales are steady this month."
+                                          ),
+                                          messageItem(
+                                            from = "New User",
+                                            message = "How do I register?",
+                                            icon = icon("question"),
+                                            time = "13:45"
+                                          ),
+                                          messageItem(
+                                            from = "Support",
+                                            message = "The new server is ready.",
+                                            icon = icon("life-ring"),
+                                            time = "2014-12-01"
+                                          )
+                                        ),
+                        dropdownMenu(type = "notifications",
+                                          notificationItem(
+                                            text = "5 new users today",
+                                            icon("users")
+                                          ),
+                                          notificationItem(
+                                            text = "12 items delivered",
+                                            icon("truck"),
+                                            status = "success"
+                                          ),
+                                          notificationItem(
+                                            text = "Server load at 86%",
+                                            icon = icon("exclamation-triangle"),
+                                            status = "warning"
+                                          )
+                                        ),
+                        dropdownMenu(type = "tasks", badgeStatus = "success",
+                                          taskItem(value = 90, color = "green",
+                                            "Documentation"
+                                          ),
+                                          taskItem(value = 17, color = "aqua",
+                                            "Project X"
+                                          ),
+                                          taskItem(value = 75, color = "yellow",
+                                            "Server deployment"
+                                          ),
+                                          taskItem(value = 80, color = "red",
+                                            "Overall project"
+                                          )
+                                        )
+                        
+                        ),
+        
+        # Create Sidebar
+        sidebar <- dashboardSidebar(
+                
+                # Dynamically creating the sidebar 
+                sidebarMenuOutput("menu"),
+                
+                # Dynamically creating this section on sever side
+                menuItemOutput("menuitem")
+        ),
+        
+         # Create Body
+        dashboardBody(
+                
+                tabItems(
+                        
+                        # First Sidebar Menu Tab content
+                        tabItem(tabName = "dashboard",
+                        
+                        # First Row - "Dashboard"
+                        fluidRow(
+                                # Controlls for map
+                                column(4, box(
+                                               title = "controls", 
+                                               sliderInput("num", 
+                                                           label="Choose a number", 
+                                                           value = 100, min = 10, max = 250),
+                                               sliderInput("sd",
+                                                           label = "Choose a sd", 
+                                                           value = 10, min = 5, max = 15),
+                                               sliderInput("var",
+                                                           label = "Choose a variance",
+                                                           value = 150, min = 100, max = 200))
+                                       ),
+                                
+                                # render Map
+                                column(8, box( collapsible = TRUE,
+                                        title = "Labour Market Map",
+                                        plotOutput("plot1",height = 350)
+                                ))
+                                
+                        ),
+                        # Second Row - "Dashboard"
+                        fluidRow(
+                                # This row will represent summary graphics for the chosen map layout
+                                column(4),
+                                       
+                                
+                                # Second graphic
+                                column(4, 
+                                       
+                                       box(collapsible = TRUE,
+                                           title = "plot2",
+                                           plotOutput("plot2", height = 250, width = "100%"))
+                                       ),
+                                
+                                # Third grapic
+                                column(4,
+                                       title = "controls",
+                                       box( collapsible = TRUE,
+                                            plotOutput("plot3", height = 250),
+                                            p("This will display a map of Austria that i will put all information about the relevant players in a region into."))
+                                       )
+                                )
+                        ),
+                        
+                
+                
+                
+                # 2nd Sidebar-Menu Item - "Widgets"
+                tabItem(tabName = "widgets", 
+                        
+                        # First Row of Content
+                        fluidRow(
+                                column(6, tabBox(
+                                        tabPanel("Tab1", 
+                                                 h4("Tab Header"),
+                                                 p("Tab content. This can actually be filled with anything i would like to put in here.")
+                                                 ),
+                                        tabPanel("Tab2",
+                                                 h4("Tab 2 Header"),
+                                                 p("Again this can be set to hold any kind of information i would like to present here.")),
+                                        tabPanel("Tab3", 
+                                                 h4("Tab 3 Header"),
+                                                 p("This too hold information for later use.s"))
+                                ))
+                        ),
+                        
+                        # Second Row of Content
+                        fluidRow(
+                                # Row1-Column1
+                                column(6, box(
+                                        title = "first Box",
+                                        plotOutput("plot4", height = 200)
+                                        
+                                ))
+                        )
+                        ),
+                
+                # 3rd Sidebar-Menu Item
+                tabItem(tabName = "data",
+                        
+                        # First Row of Content
+                        fluidRow(
+                                
+                                # First column
+                                column(5,
+                                       tabBox(title = "Source Connections",
+                                               tabPanel(
+                                                       title = "Status",
+                                                       h3("Current Datasource Status"),
+                                                       p("This describes the current connection and retrieval status for all associated data sources.")
+                                               ),
+                                               tabPanel(
+                                                       title = "Jobs",
+                                                       h3("Current Job status on data retrieval"),
+                                                       p("This describes the current progress and status on the data retrieval jobs scheduled."),
+                                                       tabsetPanel(
+                                                               tabPanel(
+                                                                       title = "out of sync",
+                                                                       h5("Datasources found to be updatable.")
+                                                               ),
+                                                               tabPanel(
+                                                                       title = "up to date",
+                                                                       h5("Datasoureces that are up to date.")
+                                                               ),
+                                                               tabPanel(
+                                                                       title = "disconnected",
+                                                                       h5("Datasources currently unavailable.")
+                                                               )
+                                                       )
+                                               )
+                                               
+                               )),
+                               # Second Column
+                                column(7, 
+                                       tabBox(title = "Data Retrieval",
+                                              tabPanel(
+                                                      title = "Trafic",
+                                                      h3("Network Traffic"),
+                                                          plotOutput(outputId = "datasourceTraffic",
+                                                                     height = 450)
+                                              ),
+                                              tabPanel(
+                                                      title = "Progress",
+                                                      h3("Ongoing Traffic"),
+                                                          plotOutput(outputId = "trafficOngoing",
+                                                                     height = 250),
+                                                      h3("Progress"),
+                                                          plotOutput(outputId = "trafficProgress",
+                                                                     height = 250)
+                                              )
+                                              ))
+                        ),
+                        # Second Row of Content
+                        fluidRow(
+                                # First Column
+                                
+                                # Second Column
+                                # Third Column
+                                
+                )),
+                
+                # 4th Sidebar-Menu Item "Schedules"
+                tabItem(tabName = "schedules",
+                        
+                        # First row of Content
+                        fluidRow(
+                                
+                                box( title = ""
+                                 
+                                
+                                )
+                                
+                        )
+                        
+                        ) #End of "Schedules"
+                
+                
+                
+                # 5th Sidebar-Menu Item 
+                tabItem(tabName = "settings",
+                        
+                        # First row of Content
+                        fluidRow(
+                                
+                                # First Column
+                                column(4,
+                                       box( title = "Color Setup",
+                                       radioButtons(inputId = "color",
+                                                          label = "Set the Dashboard Theme",
+                                                          choices = c("black"= "black", 
+                                                                      "white"="white", 
+                                                                      "green"="green", 
+                                                                      "red"="red", 
+                                                                      "orange"="orange"))
+                                       
+                                       )
+                                       )
+                        ))
+        
+                )
+       
+        )
+)
+
+server <- function(input, output){
+        
+        # Dynamically creating content for the sidebar
+        output$menu <- renderMenu({
+            sidebarMenu(
+                     sidebarSearchForm(textId = "searchText", buttonId = "searchButton",
+                    label = "Search..."),
+                    menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
+                    menuItem("Widgets", tabName = "widgets", icon = icon("th")),
+                    menuItem("Data", tabName = "data", icon = icon("data")),
+                    menuItem("Schedules", tabName = "schedules",icon = icon("calendar")),
+                    menuItem("Settings", tabName = "settings", icon = icon("cog", lib = "glyphicon")),
+                    
+                    
+                    # Include dynamic input items
+                    sliderInput(inputId = "inp", label = "Slider:",
+                                value = 10, min = 1, max = 20), 
+                    
+                    textInput(inputId = "text", label = "Text input:"),
+                    
+                    dateRangeInput(inputId = "daterng", label ="Date Range:", start = Sys.time())
+            )
+          })
+        
+}
+
+shinyApp(ui, server)
+```
+
+

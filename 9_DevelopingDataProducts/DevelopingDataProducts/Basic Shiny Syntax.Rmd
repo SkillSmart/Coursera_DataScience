@@ -1,0 +1,510 @@
+---
+title: "Shiny in R Data Product Development"
+output: html_notebook
+---
+
+
+```{r}
+install.packages("shiny", dependencies=TRUE)
+require(shiny)
+```
+
+### Basics in R Shiny 
+
+#### How to build a Shiny App
+
+- `ui.R` : Sets the user interface
+- `server.R` controls what the app does 
+
+Simple code example:
+```{r}
+shinyUI(fluidPage(
+        titlePanel("Data science FTW!"),
+        sidebarLayout(
+                sidebarPanel(
+                        h3("Sidebar Text")
+                        ),
+                mainPanel(
+                        h3("Main Panel Text"),
+                        p("Text here")
+                        
+                )
+        )
+))
+```
+
+## Most simple shiny code structure:
+```{r}
+#  Setting up the html structure
+ui <- fluidPage(
+        inputPanel()
+)
+
+# Setting up the server structure:
+server <- function(input, output){}
+
+# Combining in the shiny app
+shinyApp(ui = ui, server= server)
+```
+
+Think about "inputs" and "outputs " when building a shiny app.
+
+Input functions to use in shiny:
+
+- `sliderInput()` : produces a slider input object to select a value from a given range
+
+```{r}
+ui <- fluidPage(
+        titlePanel("This is the title!")
+        
+        sidebarLayout(
+                sidebarPanel(
+                        # Adding a slider input object
+                        sliderInput(inputId = "num",
+                                    label = "Choose a number",
+                                    value = 25, 
+                                    min = 1, max = 100)
+                )
+        )
+        
+        
+        # radioButtons("radio", 
+        #      "Take a choice", 
+        #      choices = c("a"="a","b"= "b","c"= "c")
+        #      )
+
+
+        # Adding a group of checkbox objects 
+        # checkboxGroupInput()
+        
+        # Adding a single Checkbox input object
+        # checkboxInput()
+        #  
+        # dateInput()
+        # dateRangeInput()
+        # actionButton()
+        # submitButton()
+        # actionLink()
+        # fileInput()
+        # numericInput()
+        # passwordInput()
+        
+     
+        
+        # textInput()
+        
+)
+
+
+server <- function(input, output){}
+
+shinyApp(ui, server)
+```
+
+- inputId = "num"
+- label = "Description of the function"
+- plus specific input arguments
+
+
+## Output functions
+
+- `dataTableOutput()`   : an interactive table
+- `htmlOutput()`        : raw HTML
+- `imageOutput()`       : image
+- `plotOutput()`        : plot
+- `tableOutput()`       : table  
+- `textOutput()`        : text
+- `uiOutput()`          : a shiny UI element
+- `verbatimTextOutput()`: text
+
+```{r}
+ui <- fluidPage(
+        
+        # Create a title bar
+        titlePanel("Title gets put here")
+        
+        # Create a Sidebar to hold the input functions
+        
+        
+        
+        # Creating a slider input function
+        sliderInput(inputId = "num",
+                    label = "Choose a number", 
+                    value = 200, min =1, max = 10000),
+        
+        # Creating a slider to set the mean
+        sliderInput(inputId = "mean",
+                    label = "Set the expected mean",
+                    value = 100, min = 20, max = 180),
+        
+        # Create a slider to set the sd 
+        sliderInput(inputId = "sd",
+                    label="Set the expected sd",
+                    value = 20, min = 1, max = 80),
+        
+        # Creating a ouput function
+        plotOutput("hist")
+)
+
+server <- function(input, output){
+        
+        # Define the histogram function to serve #hist
+        output$hist <- renderPlot({ 
+                title <- "100 random normal values"
+                hist(rnorm(input$num, input$mean, input$sd), main = title) 
+                
+                })
+}
+
+shinyApp(ui, server)
+```
+Render Functions for creating the render object for the output:
+
+- `renderDataTable()`   : An interactive Table
+- `renderImage()`       : An image
+- `renderPlot()`        : A plot
+- `renderPrint()`       : A code block of printed output
+- `renderTable()`       : a table
+- `renderText()`        : A character string
+- `renderUI()`          : a Shiny UI Element
+
+
+
+## Deeper Look at `Reactivity`
+
+Looking at **reactive values**
+```{r}
+
+# Setting up the UserInterface for the app
+ui <- fluidPage(
+        
+        titlePanel(
+                
+                h3("Title here")
+                ),
+        
+        # Creating a sidebar
+        sidebarLayout(
+                
+                # Setting the sidebarPanel
+                sidebarPanel(
+                        h4("Sidebar Panel Title"),
+                        
+                        # Enter some description here
+                        p("Some text here describing the app"),
+                        
+                        # Setting up the Input function
+                        sliderInput(inputId = "num",
+                                    label = "Set the n of observations",
+                                    value = 20, min = 1, max= 200), 
+                        
+                        # Input for the expected mean value
+                        sliderInput(inputId = "mean",
+                                    label = "Set the mean",
+                                    value = 100, min =1, max = 140),
+                        
+                        # Input for the expected sd in the population
+                        sliderInput(inputId = "sd",
+                                    label = "Set the sd",
+                                    value = 15, min = 1, max = 50)
+                        
+                        
+                        
+                        
+                ),
+                
+                
+                        
+                # Displaying the histogram plot
+                # Setting the main Panel
+                mainPanel(
+                        
+                        # Title
+                        h2("Mainbar Title"),
+                        
+                        
+                        # Displaying the output plot
+                        plotOutput("hist")
+                )
+                
+                
+                
+                
+        )
+        
+        
+)
+
+server <- function(input, output){
+        
+        output$hist <- renderPlot({
+                
+                # Setting the title
+                title <- "The gaussian standard normal distribution"
+                
+                hist(rnorm(input$num, input$mean, input$sd),
+                     main = title)
+        })
+}
+
+shinyApp(ui, server)
+```
+
+## The reactive toolkit in Shiny
+
+Reactive Function use :
+
+- a code chunk to build (and rebuild) an object
+- this object will repsond to changes in a set of reactive values
+
+#### `render` functions
+```{r}
+# Basic syntax: renderNAME { "function to be rendered" }
+
+# rendering a plot
+renderPlot({ hist(rnorm(input$num)) })
+
+# rendering a data.table
+renderDataTable()
+
+# 
+```
+
+Code example
+```{r}
+ui <- fluidPage(
+        
+        sliderInput(
+                inputId = "num", 
+                label = "Choose a number", 
+                value = 25, min = 1, max = 100
+        ),
+        
+        textInput(
+                inputId = "title",
+                label = "Set title for the graph",
+                value = "Histogram of Random Normal Values"),
+        
+        plotOutput("hist")
+)
+
+server <- function(input, output){
+        
+        output$hist <- renderPlot({
+                hist(rnorm(input$num), main = input$title)
+        })
+}
+
+shinyApp(ui, server)
+```
+
+### Modularize Code with `reactive()`
+
+
+Instead of having two functions recreat their data based on a reactive input objects....
+```{r}
+ui <- fluidPage(
+        
+        sliderInput(
+                inputId = "num",
+                label = "Choose a number",
+                value = 25, min = 1, max = 100
+        ),
+        
+        # render a histogram
+        plotOutput("hist"),
+        
+        # render a text block displaying the summary statistics
+        verbatimTextOutput("stats")
+)
+
+server <- function(input, output){
+        
+        output$hist <- renderPlot({
+                hist(rnorm(input$num))
+        })
+        
+        output$stats <- renderPrint({
+                summary(rnorm(input$num))
+        })
+}
+
+shinyApp(ui, server)
+```
+
+... we would like for both render objects to display based on the same dataset. 
+Instead both functions create a individual dataset based on the common link to the value of "num".
+We can use `reactive()` to achieve this behaviour. 
+
+Look out:
+
+- you call a reactive expression like a function using `data()`
+- Reactive expressions cache their values
+
+```{r}
+ui <- fluidPage(
+        
+        sliderInput(
+                inputId = "num",
+                label = "Choose a number",
+                value = 25, min = 1, max = 100
+        ),
+        
+        # render a histogram
+        plotOutput("hist"),
+        
+        # render a text block displaying the summary statistics
+        verbatimTextOutput("stats")
+)
+
+server <- function(input, output){
+        
+        # REACTIVE USED HERE !!
+        rnorm_dat <- reactive( { rnorm(input$num) })
+        
+        output$hist <- renderPlot({
+                hist(rnorm_dat())
+        })
+        
+        output$stats <- renderPrint({
+                summary(rnorm_dat())
+        })
+}
+
+shinyApp(ui, server)
+```
+Still we get a lot of unnecessary updates when the user slides the input into possition or types a single letter into a textbox. 
+
+We most often want to have a good amount of lag until we finally take the input as a change, to assert a recomputation of our function call.
+
+This is done with `isolate()` like this:
+
+isolate({ rnorm(input$num) })
+```{r}
+ui <- fluidPage(
+        
+        sliderInput(
+                inputId = "num",
+                label = "Choose a number",
+                value = 25, min = 1, max = 100
+        ),
+        
+        # get a text input to change the main plot title
+        textInput(inputId = "title",
+                  label = "Write a title",
+                  value = "Histogram of Random Normal Values"),
+        
+        # render a histogram
+        plotOutput("hist"),
+        
+        # render a text block displaying the summary statistics
+        verbatimTextOutput("stats")
+)
+
+server <- function(input, output){
+        
+        rnorm_dat <- reactive( { rnorm(input$num) })
+        
+        # Compute function for #hist
+        output$hist <- renderPlot({
+                hist(rnorm_dat(), main = isolate(input$title ))
+        })
+        
+        # Compute function for #stats 
+        output$stats <- renderPrint({
+                summary(rnorm_dat())
+        })
+}
+
+shinyApp(ui, server)
+```
+
+## Trigger code execution : using `observeEvent()`
+
+```{r}
+require(shiny)
+
+ui <- fluidPage(
+        
+        # Addding an action button 
+        actionButton(
+                inputId = "clicks",
+                label = "Click me",
+                value = "Clicked"
+        )
+)
+
+server <- function(input, output){
+        
+        # Adding function to the button
+        observeEvent(input$clicks, { print(as.numeric(input$clicks))
+        })
+}
+
+shinyApp(ui, server)
+```
+Using event to trigger code rendering using : `observe()`
+```{r}
+# basic Syntax
+observe({ print(input$clicks) })
+
+```
+
+
+## Delaying server reaction in Shiny: `eventReactive()`
+Now we want to delay reacations in Shiny with `eventReactive()`
+
+
+We now update our basic functio to update only once the "update" button is clicked actively by the user.
+```{r}
+ui <- fluidPage(
+        
+        sliderInput(inputId = "num",
+                    label = "Choose a number",
+                    value = 25, min = 1, max = 100),
+        
+        actionButton(inputId = "update",
+                     label = "Update"),
+        
+        plotOutput("hist")
+)
+
+server <- function(input, output){
+        
+        # Calculating the data, once the "update" event has been triggered
+        data <- eventReactive(input$update, {rnorm(input$num) })
+        
+        output$hist <- renderPlot({
+                hist(rnorm(data()))
+        })
+}
+
+shinyApp(ui, server)
+```
+Manage states with `reactive Values()`
+
+This creates a list of reactive values to manipulate proigrammatically
+
+```{r}
+require(shiny)
+
+ui <- fluidPage(
+        actionButton(inputId = "norm", label = "Normal"),
+        actionButton(inputId = "unif", label = "Uniform"),
+        plotOutput("hist")
+)
+
+server <- function(input, output){
+        rv <- reactiveValues(data = rnorm(100))
+        
+        observeEvent(input$norm, {rv$data <- rnorm(100) })
+        observeEvent(input$unif, {rv$data <- runif(100) })
+        
+        output$hist <- renderPlot({
+                hist(rv$data)
+        })
+}
+
+shinyApp(ui, server)
+```
+

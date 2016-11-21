@@ -1,0 +1,100 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)
+
+data <-  read.csv("F:/Desktop/links_ml_course.txt", header = FALSE, col.names = c("Title", "url_video"))
+data$number <-  1:length(data$Title)
+data <- select(data, number, Title, url_video)
+data$Title <- sprintf("%s_%s", data$number, data$Title)
+data$location <-  sprintf("D:/Videos/ZZZ_Courses-Videos/%s_%s.mp4", as.character(data$number), data$Title)
+data <- select(data, -number)
+data
+
+# Export file to xlsx
+require(xlsx)
+write.xlsx(data, "./links_ML_Course.xlsx")
+list.files()
+getwd()
+```
+
+Title	url_video
+1_ï»¿Opening Remarks and Examples	https://www.youtube.com/watch?v=2wLfFB_6SKI
+2_Supervised and Unsupervised Learning	https://www.youtube.com/watch?v=LvaTokhYnDw
+3_Statistical Learning and Regression	https://www.youtube.com/watch?v=WjyuiK5taS8
+4_Curse of Dimensionality and Parametric Models	https://www.youtube.com/watch?v=UvxHOkYQl8g
+5_Assessing Model Accuracy and Bias-Variance Trade-off	https://www.youtube.com/watch?v=VusKAosxxyk
+6_Classification Problems and K-Nearest Neighbors	https://www.youtube.com/watch?v=vVj2itVNku4
+7_Lab: Introduction to R	https://www.youtube.com/watch?v=jwBgGS_4RQA
+8_Simple Linear Regression and Confidence Intervals	https://www.youtube.com/watch?v=PsE9UqoWtS4
+9_Hypothesis Testing	https://www.youtube.com/watch?v=J6AdoiNUyWI
+10_Multiple Linear Regression and Interpreting Regression Coefficients	https://www.youtube.com/watch?v=1hbCJyM9ccs
+11_Model Selection and Qualitative Predictors	https://www.youtube.com/watch?v=3T6RXmIHbJ4
+12_Interactions and Nonlinearity	https://www.youtube.com/watch?v=IFzVxLv0TKQ
+13_Lab: Linear Regression	https://www.youtube.com/watch?v=5ONFqIk3RFg
+14_Introduction to Classification	https://www.youtube.com/watch?v=sqq21-VIa1c
+15_Logistic Regression and Maximum Likelihood	https://www.youtube.com/watch?v=31Q5FGRnxt4
+16_Multivariate Logistic Regression and Confounding	https://www.youtube.com/watch?v=MpX8rVv_u4E
+17_Case-Control Sampling and Multiclass Logistic Regression	https://www.youtube.com/watch?v=GavRXXEHGqU
+18_Linear Discriminant Analysis and Bayes Theorem	https://www.youtube.com/watch?v=RfrGiG1Hm3M
+19_Univariate Linear Discriminant Analysis	https://www.youtube.com/watch?v=QG0pVJXT6EU
+20_Multivariate Linear Discriminant Analysis and ROC Curves	https://www.youtube.com/watch?v=X4VDZDp2vqw
+21_Quadratic Discriminant Analysis and Naive Bayes	https://www.youtube.com/watch?v=6FiNGTYAOAA
+22_Lab: Logistic Regression	https://www.youtube.com/watch?v=TxvEVc8YNlU
+23_Lab: Linear Discriminant Analysis	https://www.youtube.com/watch?v=2cl7JiPzkBY
+24_Lab: K-Nearest Neighbors	https://www.youtube.com/watch?v=9TVVF7CS3F4
+25_Estimating Prediction Error and Validation Set Approach	https://www.youtube.com/watch?v=_2ij6eaaSl0
+26_K-fold Cross-Validation	https://www.youtube.com/watch?v=nZAM5OXrktY
+27_Cross-Validation: The Right and Wrong Ways	https://www.youtube.com/watch?v=S06JpVoNaA0
+28_The Bootstrap	https://www.youtube.com/watch?v=p4BYWX7PTBM
+29_More on the Bootstrap	https://www.youtube.com/watch?v=BzHz0J9a6k0
+30_Lab: Cross-Validation	https://www.youtube.com/watch?v=6dSXlqHAoMk
+31_Lab: The Bootstrap	https://www.youtube.com/watch?v=YVSmsWoBKnA
+32_Linear Model Selection and Best Subset Selection	https://www.youtube.com/watch?v=91si52nk3LA
+33_Forward Stepwise Selection	https://www.youtube.com/watch?v=nLpJd_iKmrE
+34_Backward Stepwise Selection	https://www.youtube.com/watch?v=NJhMSpI2Uj8
+35_Estimating Test Error Using Mallowâ€™s Cp, AIC, BIC, Adjusted R-squared	https://www.youtube.com/watch?v=LkifE44myLc
+36_Estimating Test Error Using Cross-Validation	https://www.youtube.com/watch?v=3p9JNaJCOb4
+37_Shrinkage Methods and Ridge Regression	https://www.youtube.com/watch?v=cSKzqb0EKS0
+38_The Lasso	https://www.youtube.com/watch?v=A5I1G1MfUmA
+39_Tuning Parameter Selection for Ridge Regression and Lasso	https://www.youtube.com/watch?v=xMKVUstjXBE
+40_Dimension Reduction	https://www.youtube.com/watch?v=QlyROnAjnEk
+41_Principal Components Regression and Partial Least Squares	https://www.youtube.com/watch?v=eYxwWGJcOfw
+42_Lab: Best Subset Selection	https://www.youtube.com/watch?v=3kwdDGnV8MM
+43_Lab: Forward Stepwise Selection and Model Selection Using Validation Set	https://www.youtube.com/watch?v=mv-vdysZIb4
+44_Lab: Model Selection Using Cross-Validation	https://www.youtube.com/watch?v=F8MMHCCoALU
+45_Lab: Ridge Regression and Lasso	https://www.youtube.com/watch?v=1REe3qSotx8
+46_Polynomial Regression and Step Functions	https://www.youtube.com/watch?v=gtXQXA7qF3c
+47_Piecewise Polynomials and Splines	https://www.youtube.com/watch?v=7ZIqzTNB8lk
+48_Smoothing Splines	https://www.youtube.com/watch?v=mxXHJa1DsWQ
+49_Local Regression and Generalized Additive Models	https://www.youtube.com/watch?v=N2hBXqPiegQ
+50_Lab: Polynomials	https://www.youtube.com/watch?v=uQBnDGu6TYU
+51_Lab: Splines and Generalized Additive Models	https://www.youtube.com/watch?v=DCn83aXXuHc
+52_Decision Trees	https://www.youtube.com/watch?v=6ENTbK3yQUQ
+53_Pruning a Decision Tree	https://www.youtube.com/watch?v=GfPR7Xhdokc
+54_Classification Trees and Comparison with Linear Models	https://www.youtube.com/watch?v=hPEJoITBbQ4
+55_Bootstrap Aggregation (Bagging) and Random Forests	https://www.youtube.com/watch?v=lq_xzBRIWm4
+56_Boosting and Variable Importance	https://www.youtube.com/watch?v=U3MdBNysk9w
+57_Lab: Decision Trees	https://www.youtube.com/watch?v=0wZUXtvAtDc
+58_Lab: Random Forests and Boosting	https://www.youtube.com/watch?v=IY7oWGXb77o
+59_Maximal Margin Classifier	https://www.youtube.com/watch?v=QpbynqiTCsY
+60_Support Vector Classifier	https://www.youtube.com/watch?v=xKsTsGE7KpI
+61_Kernels and Support Vector Machines	https://www.youtube.com/watch?v=dm32QvCW7wE
+62_Example and Comparison with Logistic Regression	https://www.youtube.com/watch?v=mI18GD4_ysE
+63_Lab: Support Vector Machine for Classification	https://www.youtube.com/watch?v=qhyyufR0930
+64_Lab: Nonlinear Support Vector Machine	https://www.youtube.com/watch?v=L3n2VF7yKkk
+65_Unsupervised Learning and Principal Components Analysis	https://www.youtube.com/watch?v=ipyxSYXgzjQ
+66_Exploring Principal Components Analysis and Proportion of Variance Explained	https://www.youtube.com/watch?v=dbuSGWCgdzw
+67_K-means Clustering	https://www.youtube.com/watch?v=aIybuNt9ps4
+68_Hierarchical Clustering	https://www.youtube.com/watch?v=Tuuc9Y06tAc
+69_Breast Cancer Example of Hierarchical Clustering	https://www.youtube.com/watch?v=yUJcTpWNY_o
+70_Lab: Principal Components Analysis	https://www.youtube.com/watch?v=lFHISDj_4EQ
+71_Lab: K-means Clustering	https://www.youtube.com/watch?v=YDubYJsZ9iM
+72_Lab: Hierarchical Clustering	https://www.youtube.com/watch?v=4u3zvtfqb7w
+73_Interview with John Chambers	https://www.youtube.com/watch?v=jk9S3RTAl38
+74_Interview with Bradley Efron	https://www.youtube.com/watch?v=6l9V1sINzhE
+75_Interview with Jerome Friedman	https://www.youtube.com/watch?v=79tR7BvYE6w
+76_Interviews with statistics graduate students	https://www.youtube.com/watch?v=MEMGOlJxxz0
