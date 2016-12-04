@@ -158,4 +158,59 @@ plot + theme( legend.position = c(0.92,0.15))
 plot + theme( legend.position = c(0.405, 0.87))
 ```
 
-f
+## Working with setting exact units with `grid package`
+
+We can use the `unit()` function to pass exactly specified parameters to a function call.
+```{r}
+# Loading the "grid" package
+if(!require(grid)){install.packages("grid"); library(grid)}
+
+# Adapting the spacing of the grid facet
+plot + theme(
+  panel.spacing.x = unit(7.5, "mm")
+)
+
+# Resetting the margin on the plot
+plot + theme(
+  plot.margin = unit(c(0,0,0,0), "cm")
+)
+```
+
+
+## Recycling Themes
+
+When using many plots in a presentation or documentation, we want to have consistent Style. 
+For this, we can set reusable Themes to apply for all plots to be drawn
+
+```{r}
+# We can use a standard preset theme from a theme library
+plot + theme_dark()
+
+
+# We can define a theme ourselves and call it with each plot we want to style
+theme.green <- theme(
+        strip.background = element_rect(color = "blue", fill = "green", size = 2.5)
+      )
+    # Now we can display the plot using the additional settings
+    plot + theme.green
+
+    
+    
+# We can set a standard theme before calling the plots, in 
+
+    # Here we need to `update` an existing scheme to get all settings, and only adding the annotations to it
+    original <- theme_update(
+      strip.background = element_rect(color = "blue", fill = "green", size = 2.5)
+    )
+    
+    # This "updated" the existing standard_theme with our changes, and is automatically applied to all plots
+    plot
+    
+    # If we want to revert back to standard, we can manually `set the standard theme`
+    theme_set(original)
+    plot
+
+
+
+```
+

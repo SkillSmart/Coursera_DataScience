@@ -26,12 +26,6 @@ We need to keep the standard ggplot call:
 - and plot them onto three dimensions(x,y,colour)
 
 For this procedure to work, we first need to arrange the data accordingly
-```{r}
-
-
-
-
-```
 
 ```{r}
 require(tidyr)
@@ -398,7 +392,7 @@ if(!require(RColorBrewer)){install.packages("RColorBrewer"); library(RColorBrewe
 blues <- brewer.pal(9, "Blues")
 
 blue_range <- colorRampPalette(blues)
-  
+blue_range
 ```
 
 ### Work
