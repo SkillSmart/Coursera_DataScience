@@ -91,9 +91,9 @@ plot  + theme(rect = element_blank())
                                                       color = "blue", 
                                                       size = 2.0))
       # "Position"
-      plot + theme(
-        legend.position = element_rect()
-      )
+      # plot + theme(
+      #   legend.position = element_rect()
+      # )
       
       
   # "Plot" Attributes
@@ -104,9 +104,9 @@ plot  + theme(rect = element_blank())
       )
       
       # 
-      plot + theme(
-        plot.margin = element_rect()
-      )
+      # plot + theme(
+      #   plot.margin = element_rect()
+      # )
   
   # "Panel" Attributes
       
@@ -129,3 +129,33 @@ plot  + theme(rect = element_blank())
 
 ```
 
+## "Legend" - Positioning
+
+1. We can set them with named attributes:
+```{r}
+# These are possible attributes to be set to position the legend
+
+# Setting position by name
+ 
+# "Bottom"
+plot + theme( legend.position = "bottom" )
+
+# "Left"
+plot + theme( legend.position = "left" )
+
+# "Top"
+plot + theme( legend.position = "top" )
+
+
+```
+
+2. We can specify exact locations
+```{r}
+# Lower right corner, just above the x.axis labels
+plot + theme( legend.position = c(0.92,0.15))
+
+# upper left corner in the middle facet
+plot + theme( legend.position = c(0.405, 0.87))
+```
+
+f
