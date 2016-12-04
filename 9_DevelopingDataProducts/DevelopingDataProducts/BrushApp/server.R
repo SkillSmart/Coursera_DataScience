@@ -21,11 +21,11 @@ shinyServer(function(input, output) {
                   return(NULL)
           }
           lm(Volume ~ Girth, data = brushed_data)
-          }),
+          })
           
           output$plot1 <- renderPlot({
                   
-          }),
+          })
           
           output$slopeOut <- renderText({
                   if(is.null(model())){
@@ -33,7 +33,7 @@ shinyServer(function(input, output) {
                   } else {
                     model()[[1]][2]
                   }
-          }),
+          })
           output$intOut <- renderText({
                   if(is.null(model())){
                           "No model found."

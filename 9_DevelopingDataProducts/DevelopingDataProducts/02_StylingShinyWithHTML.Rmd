@@ -419,7 +419,7 @@ ui <- dashboardPage(skin = "yellow",
                                 
                         )
                         
-                        ) #End of "Schedules"
+                        ), #End of "Schedules"
                 
                 
                 
