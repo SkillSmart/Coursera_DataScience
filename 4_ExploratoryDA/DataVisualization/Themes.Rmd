@@ -16,11 +16,116 @@ They are accessed by a standard nameing convention in ggplot:
 
 - element_text()
 - element_line()
-- element_rectangle()
+- element_rect()
+
+We can not also change the visual attributes of these elements, but also their positions on the plot. 
 
 
 ## First we look at the visual elements
 ```{r}
-iris.wide
+plot <- ggplot(iris.wide, aes(Length, Width, col = Part)) + 
+  geom_point() + 
+  facet_grid(. ~ Species)
+
+# This is the displayed plot in standard
+plot
+```
+
+Now we can individually specify the elements we want to alter
+```{r}
+# We can completly remove a certain layer from the plot
+plot
+
+# "Text" Elements
+plot + 
+  theme(text = element_blank())
+    
+  # And alter the subsets of text elements on the plot
+    # Title
+    plot + theme(title = element_text(face = "italic", margin = 50, size = 24, colour = "blue"))
+    
+    # Axis legend title
+    plot  + theme(legend.title = element_text(size = 17, 
+                                              color = "darkgrey",
+                                              face = "bold"))
+
+    
+# "Line" Elements
+plot + theme(line = element_blank())
+    
+    # And their basic components `ticks`, `lines`, `grid`
+    plot + theme(
+                # "Red"
+                axis.ticks = element_line(color = "red",
+                                           size = 1, 
+                                           linetype = 6, 
+                                           lineend = "round") , 
+                 # "Blue"
+                 axis.line = element_line(color = "blue", 
+                                          lineend = "round"), 
+                 # 
+                 panel.grid = element_line(linetype = 2,
+                                           size = 1, 
+                                           color = "red",
+                                           lineend = "round")
+    )
+
+    
+# "Rectangle" Elements, displaying the content
+plot  + theme(rect = element_blank())
+
+    # And their components `legend`, `panel`, `plot`
+    
+    # "Legend" Attributes
+      # "Legend keys"
+      plot + theme(legend.key = element_rect(
+        fill = "lightgreen", 
+        color = "red", 
+        linetype = 3, 
+        size = 0.3 
+        
+      ))
+      
+      # "Background"
+      plot  + theme( legend.background = element_rect(fill = "red", 
+                                                      color = "blue", 
+                                                      size = 2.0))
+      # "Position"
+      plot + theme(
+        legend.position = element_rect()
+      )
+      
+      
+  # "Plot" Attributes
+  
+      # "Background"
+      plot + theme(
+        plot.background = element_rect(fill = "lightgreen")
+      )
+      
+      # 
+      plot + theme(
+        plot.margin = element_rect()
+      )
+  
+  # "Panel" Attributes
+      
+      # "Plot Background"
+      plot + theme(
+        panel.background = element_rect(fill = "lightblue")
+      )
+      
+      # "Border"
+      plot + theme(
+        panel.border = element_rect(color = "red", fill = "blue", size = 4)
+      )
+      
+      # "stip.Background"
+      plot + 
+        theme(
+        strip.background = element_rect(color = "blue", fill = "green", size = 2.5)
+      )
+    
+
 ```
 
