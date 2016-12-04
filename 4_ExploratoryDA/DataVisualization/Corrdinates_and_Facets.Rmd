@@ -120,7 +120,11 @@ ggplot(mtcars, aes(wt, mpg, col = cyl_am, size = disp)) +
 When we facet on a variable that does represent only a single category, we end up with lots of duplicates.
 We can remove them, as we would with `rm.na`, by specifying the axis to free in the function call to `facet_grid()`
 
-```{r}
+```{r, eval=FALSE, include=FALSE}
+
+require(MASS)
+data("mammals")
+mammals
 # Basic scatter plot
 ggplot(mamsleep, aes(time, name, col = sleep)) + 
   geom_point()

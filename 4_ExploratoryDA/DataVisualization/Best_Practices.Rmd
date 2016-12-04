@@ -4,3 +4,133 @@ output: html_notebook
 ---
 
 ## Advanced DataVisualization with ggplot - Best Practices
+
+In the video we saw why "dynamite plots" (bar plots with error bars) are not well suited for their intended purpose of depicting distributions. If you really want error bars on bar plots, you can still get that. However, you'll need to set the positions manually. A point geom will typically serve you much better.
+
+We saw an example of a dynamite plot earlier in this course. Let's return to that code and make sure you know how to handle it. We'll use the mtcars dataset for examples. The first part of this exercise will just be a refresher, then we'll get into some details.
+
+## BarPlot Best practices
+```{r}
+# Cleaning the dataset
+mtcars$cyl <- as.factor(mtcars$cyl)
+mtcars$am <- as.factor(mtcars$am)
+
+# Generating the base plot
+m <- ggplot(mtcars, aes(cyl, wt))
+
+# Drawing the "dynamite plot"
+m + 
+  stat_summary(fun.y = mean, geom = "bar", fill = "skyblue") + 
+  stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1)
+```
+
+
+```{r}
+# First we update the bar to split on "am"
+m <- ggplot(mtcars, aes(cyl, wt, col = am, fill = am)) 
+
+# Then we redraw the plot
+m + 
+  stat_summary(fun.y = mean, geom = "bar") + 
+  stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom= "errorbar", width = 0.1)
+
+# We set it to dodge
+m + 
+  stat_summary(fun.y = mean, geom = "bar", position = "dodge") + 
+  stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1, position = "dodge")
+
+# Now setting the dodge to 0.9 to overlay the two
+posn.d <- position_dodge(0.9)
+
+m +
+  stat_summary(fun.y = mean, geom = "bar", position = posn.d) + 
+  stat_summary(fun.data = mean_sdl, fun.args = list(mult=1), geom = "errorbar", width = 0.1, position = posn.d)
+```
+
+If it is appropriate to use bar plots, then it would also be nice to give an impression of the number of values in each group.
+
+stat_summary() doesn't keep track of the count. stat_sum() does (that's the whole point), but it's difficult to access. In this case, the most straightforward thing to do is calculate exactly what we want to plot beforehand. For this exercise we've created a summary data frame called mtcars.cyl which contains the average (wt.avg), standard deviations (sd) and count (n) of car weights, according to cylinders, cyl. It also contains the proportion (prop) of each cylinder represented in the entire dataset. Use the console to familiarize yourself with the mtcars.cyl data frame.
+
+```{r}
+# First we creat a summary table for wt grouped by cyl
+require(dplyr)
+mtcars.cyl <- mtcars %>% group_by(cyl) %>% 
+        summarize("wt.avg" = mean(wt), "sd" = sd(wt), "n" = n(), "prop" = n()/nrow(mtcars))
+
+# Then we draw the base layer
+m <- ggplot(mtcars.cyl, aes(cyl, wt.avg))
+
+# We draw a barplot
+m + geom_bar(stat = "identity", fill = "skyblue")
+
+# Add aesthetics
+m + geom_bar(stat = "identity", fill = "skyblue",
+             aes(width = prop)) 
+
+# Add error bars
+m + geom_bar(stat = "identity", fill = "skyblue", 
+             aes(width = prop)) + 
+  geom_errorbar(aes(ymin = wt.avg - sd, ymax = wt.avg + sd),
+                width = 0.1)
+```
+
+
+
+## Best Practice - "Pie Chart"
+
+TODO: This part was skipped in the R-Datavisualization Video
+
+
+Exercises
+```{r}
+# Convert bar chart to pie chart
+ggplot(mtcars, aes(x = factor(1), fill = am)) +
+  geom_bar(position = "fill", width = 1) + 
+  facet_grid(.~ cyl) + 
+  coord_polar(theta = "y")
+```
+
+```{r}
+# Parallel coordinates plot using GGally
+library(GGally)
+
+# All columns except am
+group_by_am <- 9
+my_names_am <- (1:11)[-group_by_am]
+
+# Basic parallel plot - each variable plotted as a z-score transformation
+ggparcoord(mtcars, my_names_am, groupColumn = group_by_am, alpha = 0.8)
+```
+
+
+
+### Plot Matrices - with "SPLOM"
+
+This creates a scatter plot matrix to look trough all posible relations between multiple variables in a dataset. 
+As a first introduction to exploratory analysis this is really a timesaver!!
+
+```{r}
+# Select a subset of variables to analyze
+mtcars2 <- mtcars %>% 
+  select(qsec, wt, drat, disp, mpg)
+
+# Now we analyze all relations between those variables in individual scatterplots
+GGally::ggpairs(mtcars2)
+```
+
+
+
+### Best Practices - "Heat Map"
+
+Heat maps are a very common way for data visualization, even though at heart they are one of the least informative visualiziaton techniques. 
+
+Here we will look at possible variations to make the best possible use of them. 
+
+```{r}
+# We work with the classical "barley" dataset
+data("barley")
+
+# We inspect the variables and structure
+head(barley, 15)
+```
+
