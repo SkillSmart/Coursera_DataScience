@@ -129,8 +129,48 @@ Here we will look at possible variations to make the best possible use of them.
 ```{r}
 # We work with the classical "barley" dataset
 data("barley")
+barley$year <- as.factor(barley$year)
 
 # We inspect the variables and structure
 head(barley, 15)
+
+
+# Setting individual colormap
+myColors <- brewer.pal(9, "Greens")
+
+# Creating the Heatmap. You can easily set
+ggplot(barley, aes(year, variety, fill = yield)) + 
+  geom_tile() + 
+  facet_wrap(~ site, ncol = 1) + 
+  scale_fill_gradientn(colors = myColors)
+
+```
+
+### Heat map alternatives
+
+There are several alternatives to heat maps. The best choice really depends on the data and the story you want to tell with this data. If there is a time component, the most obvious choice is a line plot like what we see in the viewer. Can you come up with the correct commands to create a similar looking plot?
+
+#### Trying the `lineplot` as an alternative
+```{r}
+# Getting dependency for theme package
+if(!require("ggthemes")){install.packages("ggthemes"); library(ggthemes)}
+
+# Plotting the lineplot
+ggplot(barley, aes(year, yield, col = variety, group = variety)) +
+  geom_line() + 
+  facet_wrap(~ site, nrow = 1) +
+  theme_tufte()
+  
+  
+```
+
+#### Showing trends with `overlapping ribbon plot`
+
+You can use dodged error bars or you can use overlapping transparent ribbons (shown in the viewer). In this exercise we'll try to recreate the second option, the transparent ribbons.
+
+```{r}
+ggplot(barley, aes(year, yield, col = site, fill = site, group = site)) + 
+  stat_summary(fun.y = mean, geom = "line") + 
+  stat_summary(fun.data = mean_sdl, fun.args = list(mult=1), geom = "ribbon", col = NA, alpha = 0.1)
 ```
 
