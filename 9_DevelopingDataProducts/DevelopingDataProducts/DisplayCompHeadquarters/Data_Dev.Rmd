@@ -1,0 +1,194 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+## Working with data in leaflet
+
+```{r}
+require(leaflet)
+require(readr)
+require(dplyr)
+```
+
+# Loading the data 
+```{r}
+# Loading world cities data
+if(!exists("cities")){cities <- read_csv("./data/worldcities.csv")}
+```
+## Subsetting the data
+```{r}
+# Inspecting the dataframe
+str(cities)
+names(cities)
+
+
+# Subsetting 
+cities_sub <- cities %>% filter(`language script` == "latin") %>% 
+        select(name, latitude, longitude, "country" = `ISO 3166-1 country code`)
+
+# Checking for missing values
+sum(is.na(cities_sub))
+
+# Converting datatypes and cleaning representation
+cities_sub$country = as.factor(cities_sub$country)
+cities_sub$name <- sapply(cities_sub$name, tolower)
+
+
+# Finished Dataset
+cities_sub
+```
+
+# Testing the leaflet map display
+```{r}
+cities_sep <- cities_sub %>% filter(longitude < 2.5, longitude > 0)
+dim(cities_sep)
+
+leaflet(cities_sep) %>% 
+        addTiles() %>% 
+        addCircles(color = ~country)
+
+```
+
+
+```{r}
+# Geocoding locations on google maps
+if(!require("ggmap")){install.packages("ggmap", dependencies = TRUE)}
+
+
+get_geocode <- function(cityname, display = FALSE){
+        
+        tryCatch(geoLoc <- cities_sub %>% filter(name == tolower(cityname)),
+                 error = function(e)
+                 {message("You did not specify a city name. Please enter again.")}
+        )
+        
+        # Display map if choosen to display result
+        if(display){
+                require("leaflet")
+                leaflet(geoLoc) %>% 
+                        addTiles() %>% 
+                        addMarkers()
+        } else { return(geoLoc) }
+}
+
+# Display function
+get_geocode("Wien", display= TRUE)
+
+
+```
+
+Getting more precise answers with googlemaps geoCodeing
+```{r}
+require(leaflet)
+
+# This get the location details for a specific address and plots it on the open streetmap 
+getGeoDetails <- function(address, display = FALSE){
+        
+        geo_reply = geocode(address, output = "all", messaging=TRUE, override_limit=TRUE )
+        
+        result <- data_frame(name = address, 
+                   lat = geo_reply$results[[1]]$geometry$location$lat,
+                   lng = geo_reply$results[[1]]$geometry$location$lng)
+        
+        if(display==TRUE){
+                leaflet() %>% 
+                addTiles() %>% 
+                addMarkers(result$lng, result$lat)
+        } else { return(result) }
+}
+
+getGeoDetails("Wissmanstr.16, 90411, Nuremberg, Germany", display = TRUE)
+
+```
+
+```{r}
+leaflet() %>% 
+        addTiles() %>% 
+        addMarkers(dat$lng, dat$lat)
+```
+
+
+## Display Company Headquarters
+```{r}
+
+# Get list of Headquarters for  top 100 internet companies from Wikipedia
+
+require(rvest)
+require(readr)
+require(leaflet)
+
+# Load the html source
+dat <- read_html("https://en.wikipedia.org/wiki/List_of_largest_Internet_companies")
+
+# Parse out the information from the Wikitable
+wikiTbl <- dat %>% html_nodes(xpath="//*[@id=\"mw-content-text\"]/table[2]") %>% 
+        html_table()
+
+# Subset the dataset
+wikiTbl <- wikiTbl[[1]]
+wikiTbl <- wikiTbl[,3:dim(wikiTbl)[2]]
+wikiTbl$Industry <- as.factor(wikiTbl$Industry)
+
+
+subTbl <- wikiTbl %>% select(`Revenue ($B)`, Employees, `Market cap ($B)`) %>% 
+        lapply(., function(x){ gsub("\\$", "", x)}) %>% 
+                lapply(., function(x){gsub(",", "", x)}) %>% 
+                lapply(., as.numeric)
+
+# update table information
+wikiTbl$`Revenue ($B)` <- subTbl$`Revenue ($B)`
+wikiTbl$Employees <- subTbl$Employees
+wikiTbl$`Market cap ($B)` <- subTbl$`Market cap ($B)`
+
+
+
+# get Location Data for the company headquarters
+getGeoDetails <- function(address){
+        
+        geo_reply = geocode(address, output = "all", messaging=TRUE, override_limit=TRUE )
+        
+        list(lat = geo_reply$results[[1]]$geometry$location$lat,
+                   lng = geo_reply$results[[1]]$geometry$location$lng)
+}
+
+
+# Annotating the lat and long data for the headquarters
+geoList <- unlist(lapply(wikiTbl$Headquarters, getGeoDetails))
+wikiTbl$lat <- geoList[names(geoList)=="lat"]
+wikiTbl$lng <- geoList[names(geoList)=="lng"]
+
+wikiTbl
+
+# Display information on map
+ leaflet(data = wikiTbl) %>% 
+         addTiles() %>% 
+         addCircles(radius = ~`Revenue ($B)`^3 + 1500, lat = wikiTbl$lat,
+                    lng = wikiTbl$lng)
+        # addMarkers(lng = wikiTbl$lng, lat = wikiTbl$lat)
+
+
+ # Selective input of subsamples of data based on the industries to display
+ filteredData <- reactive({
+         wikiTbl %>% filter()
+ })
+
+
+
+```
+Inspecting the data:
+```{r}
+leaflet() %>% 
+        addTiles()
+```
+
+```{r}
+leaflet() %>% 
+        addProviderTiles("OpenTopoMap", group="MapQuest.Aerial") %>% 
+        addProviderTiles("Esri.WorldImagery")
+```
+
+```{r}
+leaflet() %>% 
+        addProviderTiles("")
+```
+

@@ -1,0 +1,26 @@
+Company,Industry,Revenue ($B),FY,Employees,Market cap ($B),Headquarters,Refs,lat,lng
+Amazon,E-commerce,107.0,2015,268900.0,329.7,"Seattle, WA, USA",[1],47.6062095,-122.3320708
+Google,Search,74.98,2015,61814.0,493.2,"Mountain View, California, USA",[2],37.3860517,-122.0838511
+Facebook,Social,17.93,2015,12691.0,332.1,"Menlo Park, CA, USA",[3],37.4529598,-122.1817252
+Tencent,Social,15.84,2015,25517.0,194.4,"Shenzhen, Guangdong, China",[4],22.543096,114.057865
+Alibaba,E-commerce,12.29,2015,26e3,204.8,"Hangzhou, Zhejiang, China",[5],30.274085,120.15507
+Baidu,Search,10.56,2015,41467.0,62.27,"Beijing, China",[6],39.904211,116.407395
+Priceline Group,Travel,9.22,2015,9e3,63.83,"Norwalk, CT, USA",[7],41.11774399999999,-73.4081575
+eBay,E-commerce,8.59,2015,34600.0,26.98,"San Jose, CA, USA",[8],37.3382082,-121.8863286
+Netflix,Web portal,6.77,2015,3500.0,41.89,"Los Gatos, CA, USA",[9],37.2358078,-121.9623751
+"Expedia,Inc.",Travel,6.67,2015,18e3,16.61,"Bellevue, Washington, USA",[10],47.610377,-122.2006786
+Rakuten,E-commerce,6.3,2015,12981.0,13.06,"Tokyo, Japan",[11],35.7090259,139.7319925
+Salesforce.com,Cloud computing,5.37,2015,16227.0,47.89,"San Francisco, CA, USA",[12],37.7749295,-122.4194155
+Yahoo,Search Engine,4.97,2015,12500.0,36.34,"Sunnyvale, CA, USA",[13],37.36883,-122.0363496
+ODIGEO,Travel,4.9,2015,1700.0,0.22,"Barcelona, Spain",[14],41.3850639,2.1734035
+NetEase,Online Services,3.63,2015,12919.0,22.65,"Guangzhou, Guangdong, China",[15],23.12911,113.264385
+Zalando,E-commerce,3.28,2015,1e4,8.7,"Berlin, Germany",[16],52.52000659999999,13.404954
+Groupon,E-commerce,3.1,2015,1e4,1.96,"Chicago, Illinois, USA",[17],41.8781136,-87.6297982
+LinkedIn,Social,2.99,2015,8735.0,17.48,"Mountain View, CA, USA",[18],37.3860517,-122.0838511
+Twitter,Social,2.22,2015,3638.0,10.2,"San Francisco, CA, USA",[19],37.7749295,-122.4194155
+Naver Corporation,Search engine,2.2,2013,2501.0,16.15,"Seoul, South Korea",[20],37.566535,126.9779692
+Cimpress,Mass Customization,1.78,2016,8e3,2.7,"Venlo, Netherlands",[21],51.3703748,6.172403099999999
+TripAdvisor,Travel,1.5,2015,2793.0,8.55,"Needham, Massachusetts,USA",[22],42.2809285,-71.23775479999999
+flipkart,E-Commerce,1.5,2015,35e3,9.39,"Bangalore, Karnataka, India",[23],12.9715987,77.5945627
+ASOS.com,E-Commerce,1.4,2014,7500.0,4.8,"London, UK",[24],51.5073509,-0.1277583
+Yandex,Search,0.9,2014,5514.0,6.15,"Moscow, Russia",[25],55.755826,37.6173
