@@ -1,0 +1,57 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Working with the Grid Package in R
+[Roger Pengs words on this matter](https://bookdown.org/rdpeng/RProgDA/the-grid-package.html#overview-of-grid-graphics)
+
+The grid package in R implements the primitive graphical functions that underly the ggplot2 plotting system. While one typically does not interact directly with the grid package (it is imported by the ggplot2 package), it is necessary to understand some aspects of the grid package in order to build new geoms and graphical elements for ggplot2. In this section we will discuss key elements of the grid package that can be used in extending `ggplot2.
+
+The ggplot2 package is built on top of grid graphics, so the grid graphics system “plays well” with ggplot2 objects. In particular, ggplot objects can be added to larger plot output using grid graphics functions, and grid graphics functions can be used to add elements to ggplot objects. Grid graphics functions can also be used to create almost any imaginable plot from scratch. A few other graphics packages, including the lattice package, are also built using grid graphics.
+
+### Grobs - Graphical Objects in the `grid package`
+
+Grobs are graphical objects that you can make and change with grid graphics functions. For example, you may create a circle grob or points grobs. Once you have created one or more of these grobs, you can add them to or take them away from larger grid graphics objects, including ggplot objects. These grobs are the actual objects that get printed to a graphics device when you print a grid graphics plot; if you tried to create a grid graphics plot without any grobs, you would get a blank plot.
+
+
+Possible grobs that can be created using functions in the grid package include:
+
+* circles
+* rectangles
+* points
+* lines
+* polygons
+* curves
+* axes
+* rasters
+* segments
+* and plot frames.
+
+Additional Packages like the `gridExtra` package, provide additional functionality
+
+- `tableGrob` to add a table object that can be added to grid graphics objects
+
+
+#### Drawing basic grobs in R
+```{r}
+require(grid)
+
+# To draw an object, we have to first create it
+my_circle <- circleGrob(x = 0.5, y = 0.5, r = 0.5, 
+                        gp = gpar(col = "gray", lty = 2))
+
+# And then call the grid.draw() function on it
+grid.draw(my_circle)
+
+# Draw a rectangle with rectGrob
+my_rect <- rectGrob(x = 0.5, y = 0.5, width = 0.8, height = 0.3)
+grid.draw(my_rect)
+```
+
+We can then start to edit the objects afterwards using the `grid.edit` function:
+```{r}
+require(gridExtra)
+grid.arrange()
+```
+

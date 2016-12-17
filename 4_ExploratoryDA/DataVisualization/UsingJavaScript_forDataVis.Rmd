@@ -1,0 +1,101 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Using JavaScript in R
+[R application showcase](http://www.htmlwidgets.org/)
+[Advanced Topics can be read up on here]()
+
+JavaScript has a number of libraries that can be used to create interactive graphics for documents viewed in a web browser. There are now several R packages that allow you to create plots built on these JavaScript libraries from within R.
+
+While these packages draw on JavaScript libraries, they do not require you to export your data from R or to write JavaScript code. However, because the output runs on JavaScript, the resulting plots will not be interactive if included in static output like pdf or Word documents that you create using R Markdown. The output will be interactive if viewed in the “Viewer” panel of RStudio or if included in a HTML document created with R Markdown, and they can be incorporated into Shiny web applications.
+
+### Currently available for interactive graphics in R using JS
+
+
+* leaflet: Mapping
+* dygraphs: Time series
+* plotly: A variety of plots, including maps
+* rbokeh: A variety of plots, including maps
+* networkD3: Network data
+* d3heatmap: Heatmaps
+* DT: Data tables
+* DiagrammeR: Diagrams and flowcharts
+
+
+### Working with `plotly`
+
+Based on plotly.js Framework, it offers an open source framework for deploying interactive Graphics in JavaScript.
+It can plot interactive 3D point and surface plots to be used in shiny and console interactions
+
+There are two main ways to create plots using the R `plotly` package:
+
+* Use one of the package's function to create and customizable graphics
+  * plot_ly: Main workhorse function, renders most `non-map types`
+  * plot_geo, plot_mapbax: specific functions to create `plotly maps`
+
+* Create a ggplot object and then convert it to a `plotly` object using the `ggplotly()` function
+
+```{r} 
+# Setting up the dependencies
+if(!require(faraway)){install.packages("faraway"); library(faraway)}
+if(!require(plotly)){install.packages("plotly", dependencies = TRUE); library(plotly)}
+
+# SEtting up an example with the worldcup dataset
+data(worldcup)
+
+# Creating a scatterplot with plotly
+plot_ly(worldcup, type = "scatter", x = ~Time, y = ~Shots, color = ~ Position)
+```
+
+```{r}
+# First draw the 
+plot1 <- worldcup %>% 
+ggplot(aes(Time, Shots, color = Position)) + 
+  geom_jitter()
+
+ggplotly(plot1)
+```
+
+```{r}
+plot_ly(worldcup, type = "scatter", x = ~Time, y = ~Shots, color = I("blue"))
+```
+
+By default, the graph will show the mapped aesthetics when you move the cursor over each point. 
+
+However, you can change this default to show something different from the data when the viewer scrolls over each point. For example, the plot we created above for the World Cup data maps player time to the x aesthetic, shots to the y aesthetic, and color to the player’s position. 
+
+Therefore, by default these three values will be shown for a point if you move the cursor over the point. However, you might prefer to show each player’s name, which is contained in the rownames of the worldcup data. You can do this by using dplyr tools to move the rownames to a column named Name and then mapping that column to the text aesthetic and specifying that aesthetic to the hoverinfo parameter:
+
+```{r}
+worldcup %>% 
+  mutate(Name = rownames(worldcup)) %>% 
+  plot_ly(x = ~Time, y = ~Shots, color = ~Position) %>% 
+  add_markers(text = ~Name, hoverinfo = "text")
+```
+
+For [further reading](https://cpsievert.github.io/plotly_book/) head over to the authors bookdown book. 
+
+
+### Working with `the leaflet package`:
+[official site](http://leafletjs.com/) for further details
+
+```{r}
+library(leaflet)
+# Basic Command is to add a leaflet object with a basic Tile
+leaflet() %>% 
+  addTiles() %>% 
+  addMarkers(data = serial)
+
+# Data on Denver
+leaflet() %>% 
+  addProviderTiles("OpenStreetMap.BlackAndWhite") %>% 
+  addPolygons(data = denver_tracts)
+
+```
+
+```{r}
+
+```
+

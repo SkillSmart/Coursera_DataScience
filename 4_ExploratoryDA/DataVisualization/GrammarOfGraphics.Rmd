@@ -169,11 +169,11 @@ Aesthetics include:
 - alpha
 
 
-Definatly avoid:
+Definately avoid:
 
 - unaligned scales
 - adding duplicated visual differences (col&shape)
-- 
+
 
 ### Overplotting Errors
 ```{r}
@@ -307,10 +307,15 @@ ggplot(mtcars, aes(factor(cyl), wt)) +
   geom_jitter()
 
 # We Define the position to use jitter
-posn.j <- position_jitter(widt=0.05)
+posn.j <- position_jitter(widt=0.2)
 
 ggplot(mtcars, aes(factor(cyl), wt)) + 
-  geom_point(position=posn.j)
+  geom_point(position=posn.j) 
+
+ggplot(mtcars, aes(wt)) + 
+  geom_histogram(bins = 15, fill = "skyblue", col = "darkgrey") + 
+  geom_jitter(aes(y = 1), col = "red", alpha = 0.5) + 
+  geom_rug(col = "grey")
 ```
 
 
@@ -396,3 +401,11 @@ blue_range
 ```
 
 ### Work
+
+```{r}
+pdf("MyFig.pdf")
+ggplot(iris, aes(Sepal.Width, Sepal.Length, col = Species)) + 
+  geom_jitter()
+dev.off()
+```
+

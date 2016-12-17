@@ -1,0 +1,28 @@
+---
+title: "Untitled"
+author: "Frank Fichtenmueller"
+date: "December 16, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+require(grid)
+
+# To draw an object, we have to first create it
+my_circle <- circleGrob(x = 0.5, y = 0.5, r = 0.5, 
+                        gp = gpar(col = "gray", lty = 2))
+
+# And then call the grid.draw() function on it
+grid.draw(my_circle)
+
+# Draw a rectangle with rectGrob
+my_rect <- rectGrob(x = 0.5, y = 0.5, width = 0.8, height = 0.3)
+grid.draw(my_rect)
+```
+

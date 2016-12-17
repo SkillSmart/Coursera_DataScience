@@ -1,0 +1,93 @@
+---
+title: "Mapping Geospatial objects in R "
+output: html_notebook
+---
+
+## Advanced Geo Mapping in R using geospatial objects
+
+
+Basic geospatial objects include:
+
+* SpatialPolygons
+* SpatialPoints
+* SpatialLines
+* SpatialPolygonsDataFrame
+* SpatialPointsDataFrame
+* SpatialLinesDataFrame
+
+
+## Working with the `tigris` package
+```{r}
+if(!require(tigris)){install.packages("tigris", dependencies = TRUE); library(tigris)}
+if(!require(sp)){install.packages("sp", dependencies = TRUE); library(sp)}
+```
+
+The tigris package lets you pull spatial data directly from the `US Census`. This data comes into R as a spatial object. To provide a basic overview of working with spatial object in R, we will use an example spatial object pulled with this package.
+
+See the article [tigris: An R Package to Access with geodata on us census](https://journal.r-project.org/archive/accepted/walker.pdf)
+
+
+### Using the `tracts` function in tigris package
+```{r}
+denver_tracts <- tracts(state = "CO", county = 31, cb = TRUE)
+```
+Using class on the object, we see that the function returned a SpatialPolygonsDataFrame object.
+```{r}
+class(denver_tracts)
+```
+These can be ploted
+```{r}
+plot(denver_tracts)
+```
+
+There are a number of additional methods for this specific class.
+
+#### `bbox()` to display the bounding box of the spatial object
+```{r}
+bbox(denver_tracts)
+```
+
+With `is.projected` and `proj4string` we gather information about the currently applied coordinate system
+```{r}
+is.projected(denver_tracts)
+
+proj4string(denver_tracts)
+```
+
+If a spatial object includes attribute data (i.e., is an object type *DataFrame), you can access a “slot” in the spatial object to pull out an attribute dataframe using @. For example, here’s the beginning of the dataframe for the denver_tracts spatial object:
+```{r}
+head(denver_tracts@data)
+levels(factor(denver_tracts$AWATER))
+```
+
+We can overlay the fill attribute with different categorical variables:
+```{r}
+plot(denver_tracts, col = denver_tracts$AWATER)
+```
+
+### Plotting a spatial object using ggplot functions
+
+There likely will also be cases when you have a spatial object but would like to plot it using ggplot-type mapping. In this case, you need to convert the spatial object to a dataframe, since ggplot will only input dataframes. You can use the fortify function from ggplot2 to do this. For example, to convert the Denver census tracts spatial object to a dataframe, you could call:
+
+```{r}
+# This function translates the sp objects into a grouped lat, long dataframe
+denver_tracts_df <- fortify(denver_tracts)
+
+# The compatible structure for a ggplot call was introduced
+head(denver_tracts_df)
+
+# We can plot this dataframe as usual using the geom_polygon layer
+ggplot(denver_tracts_df, aes(lat, long, group = group)) +
+  geom_polygon(fill = "lightblue", col = "black") +
+  theme_void()
+```
+
+### Adapting and setting the coordinate system to work with
+
+To go more in depth read trough [Mastering R from Roger Peng - Advanced Mapping](https://bookdown.org/rdpeng/RProgDA/mapping.html)
+
+```{r}
+
+```
+
+

@@ -60,7 +60,7 @@ ggplot(data = iris, aes(Sepal.Length, Sepal.Width, colour=Species)) +
 ```
 
 
-# Wrappint the x variable as a factor removes the display of all not existent values 
+# Wrapping the x variable as a factor removes the display of all not existent values 
 ```{r}
 ggplot(mtcars, aes(factor(cyl), mpg)) + 
   geom_point()

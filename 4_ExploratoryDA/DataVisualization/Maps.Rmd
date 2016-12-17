@@ -1,0 +1,236 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Mapping Data in ggplot2
+
+```{r}
+require(ggplot2)
+if(!require("maps")){install.packages("maps"); library(maps)}
+us_map <- map_data("state")
+```
+
+
+## Drawing a map using a path geom
+```{r}
+require(dplyr)
+us_map %>% 
+  filter(region %in% c("north carolina", "south carolina")) %>% 
+  ggplot(aes(long, lat)) + 
+  geom_path()
+```
+
+
+## Drawing map using the geom_polygon()
+```{r}
+us_map %>% 
+  filter( region %in% c("north carolina", "south carolina")) %>% 
+  ggplot(aes(long, lat, group = group)) + 
+  geom_polygon( fill = "lightblue", col = "black")
+```
+
+## Applying a theme to seperate the picture from the data representation
+```{r}
+us_map %>% 
+  filter(region %in% c("north carolina", "south carolina")) %>%  
+  ggplot(aes(long, lat, group = group)) +
+  geom_polygon(fill ="lightblue", col = "black") + 
+  theme_void()
+```
+
+## Plotting complete map data for the us regions
+```{r}
+# Plotting the map of all US States
+baseplot <- us_map %>% 
+  ggplot(aes(long, lat, group = group )) + 
+  geom_polygon( fill = "lightblue", col = "black") + 
+  theme_void()
+
+# Highlighting north dako
+map_nd <- us_map %>% 
+  filter(region == "north dakota") %>% 
+  ggplot(aes(long, lat, group = group)) + 
+  geom_polygon( fill = "red", col = "black")
+
+```
+### Mapping values onto the basemap
+
+```{r}
+library(dplyr)
+library(viridis)
+
+repub.votes <- votes.repub %>% 
+  tbl_df() %>% 
+  mutate(state = rownames(votes.repub),
+         state = tolower(state)) %>% 
+  right_join(us_map, by = c("state" = "region"))
+
+```
+
+
+```{r}
+require(readr)
+serial <- read_csv(paste0("https://raw.githubusercontent.com/",
+                          "dgrtwo/serial-ggvis/master/input_data/",
+                          "serial_podcast_data/serial_map_data.csv"))
+
+# Checking the dataset
+head(serial)
+
+# Mutating the dataset to fit longitude, latitude format
+serial <- serial %>% 
+  mutate(long = -76.8854 + 0.00017022 * x, 
+         lat = 39.23822 + 1.371014e-04 * y, 
+         tower = Type == "cell-site")
+
+serial %>% 
+  slice(c(1:3, (n() - 3):(n())))
+
+head(serial)
+baltimore <- map_data('county', region = "maryland") %>% 
+  filter(subregion %in% c("baltimore city", "baltimore"))
+
+# Plotting the location map of baltimore as a subset of Maryland
+maryland_plot <- map_data('county', region = "maryland") %>% 
+  filter(subregion %in% c("baltimore city", "baltimore")) %>% 
+  ggplot(aes(long, lat, group = group)) + 
+  geom_polygon(fill = "lightblue", col = "black") +
+  theme_void()
+
+maryland_plot
+
+# Adding datapoints 
+maryland_plot + 
+  geom_point(data = serial, aes(group = NULL, color = tower)) + 
+  scale_color_manual(name = "Cell tower", values = c("black", 'red'))
+
+```
+
+## Plotting with google Maps trough the `ggmap` package
+```{r}
+if(!require(ggmap)){install.packages("ggmap"); library("ggmap")}
+require(ggplot2)
+```
+
+Basic Syntax for the map calls trough the API.
+
+`get_maps()` to get a basic map for a location
+```{r}
+# This call returns a basic map object
+Mosergasse <- get_map("Mosergasse 12/22, 1090 Wien")
+
+# It can be plottet using the ggmap function
+ggmap(Mosergasse)
+```
+```{r}
+map_1 <- get_map("Estes Park", zoom = 12,
+                 source = "google", maptype = "terrain")
+ggmap(map_1) +
+  theme_void() + 
+  ggtitle("Estes Park Terrain View")
+```
+
+```{r}
+moser_map <- get_map("Mosergasse 12/22, 1090 Wien", zoom = 15)
+ggmap(moser_map) + 
+  theme_void() + 
+  ggtitle("Vienna Austria")
+```
+
+Adding information to the map
+```{r}
+require(dplyr)
+require(ggplot2)
+
+# Hybrid Map
+map_1 <- get_map("Mosergasse 12, 1090 Wien",
+                 zoom = 12, 
+                 maptype = "hybrid",
+                 source = "google") %>% 
+  ggmap(extend = "device") + 
+  theme_void()
+
+# Terrain Map
+map_2 <- get_map("Mosergasse 12, 1090 Wien",
+                 zoom = 12, 
+                 maptype = "terrain",
+                 source = "google") %>% 
+  ggmap(extend = "device") + 
+  theme_void()
+
+# Stamen Watercolor Map
+map_3 <- get_map("Mosergasse 12, 1090 Wien",
+                 zoom = 12, 
+                 source = "stamen",
+                 maptype = "watercolor") %>% 
+  ggmap(extend = "device") + 
+  theme_void()
+
+library(gridExtra)
+grid.arrange(map_1, map_2, map_3, nrow = 1)
+```
+
+Adding geoms to the map object
+```{r}
+get_map("Baltimore County", zoom = 10,
+        source = "stamen", maptype = "toner") %>% 
+  ggmap() + 
+  geom_polygon(data = baltimore, aes(long, lat, group = group),
+               color = "navy", fill = "lightblue", alpha = 0.2) + 
+  geom_point(data = serial, aes(long, lat, color = tower)) + 
+  theme_void()
+  
+```
+
+```{r}
+get_map("Goa, India", zoom = 10,
+        source = "google", 
+        maptype = "terrain") %>% 
+  ggmap(extend = "device") + 
+  theme_void()
+```
+
+```{r}
+get_map("Baltimore County", zoom = 10,
+        source = "google", maptype= "hybrid") %>% 
+  ggmap()  + 
+  geom_polygon(data = baltimore, aes(long, lat, group = group),
+               color = "navy", fill = "lightblue", alpha = 0.4) + 
+  geom_point(data = serial, aes(long, lat, color = tower)) + 
+  theme_void() + 
+  scale_color_manual(name = "Cell tower", values = c("black", "red"))
+```
+```{r}
+get_map("Baltimore County", zoom = 10, 
+        source = "stamen", 
+        maptype = "toner") %>% 
+  ggmap(extend = "device") + 
+  geom_polygon(data = baltimore, aes(long, lat, group = group), col = "navy", fill = "lightblue", alpha = 0.2) + 
+  geom_point(data = serial, aes(long, lat, color = tower)) + 
+  theme_void() + 
+  scale_color_manual(name = "Cell tower", values = c("black", "red"))
+
+```
+### Using the ggmap package to get geolocation using `geocode()` functionality
+
+```{r}
+geocode("One World Center")
+```
+
+```{r}
+geocode("Supreme Court of the United States") %>% 
+  get_map(zoom = 15) %>% 
+  ggmap() +
+  theme_void()
+```
+### Computing the distance given two points 
+
+```{r}
+mapdist("Baltimore, MD",
+        "1 First St NE, Washington, DC") %>%
+  select(from, to, miles)
+```
+
+Other functionalities can be found here [goole maps API Documentation] (https://developers.google.com/maps/documentation/distance-matrix/?csw=1)
+
